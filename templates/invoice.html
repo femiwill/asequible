@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ order.order_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; padding: 40px; max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 3px solid #1D3557; padding-bottom: 20px; }
+        .brand { font-size: 1.5rem; font-weight: 700; color: #1D3557; }
+        .brand small { display: block; font-size: 0.8rem; font-weight: 400; color: #666; }
+        .invoice-title { text-align: right; }
+        .invoice-title h2 { color: #1D3557; margin-bottom: 5px; }
+        .invoice-title div { font-size: 0.85rem; color: #666; }
+        .meta { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .meta-section h4 { color: #1D3557; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; }
+        .meta-section p { font-size: 0.85rem; margin-bottom: 3px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        thead th { background: #1D3557; color: #fff; padding: 10px; text-align: left; font-size: 0.85rem; }
+        tbody td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        .totals { margin-left: auto; width: 300px; }
+        .totals .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; }
+        .totals .row.total { font-size: 1.1rem; font-weight: 700; color: #1D3557; border-top: 2px solid #1D3557; padding-top: 10px; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.75rem; color: #999; }
+        @media print { body { padding: 20px; } .no-print { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="text-align:center;margin-bottom:20px">
+        <button onclick="window.print()" style="padding:10px 30px;background:#1D3557;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1rem">
+            Print Invoice
+        </button>
+    </div>
+
+    <div class="header">
+        <div>
+            <div class="brand">Asequible Services Limited<small>Premium Rice Distributor</small></div>
+        </div>
+        <div class="invoice-title">
+            <h2>INVOICE</h2>
+            <div>{{ order.order_number }}</div>
+            <div>{{ order.created_at.strftime('%d %B %Y') }}</div>
+        </div>
+    </div>
+
+    <div class="meta">
+        <div class="meta-section">
+            <h4>Bill To</h4>
+            <p><strong>{{ order.customer.name }}</strong></p>
+            <p>{{ order.customer.phone }}</p>
+            {% if order.customer.email %}<p>{{ order.customer.email }}</p>{% endif %}
+        </div>
+        <div class="meta-section">
+            <h4>Ship To</h4>
+            <p><strong>{{ order.delivery_name }}</strong></p>
+            <p>{{ order.delivery_address }}</p>
+            <p>{{ order.delivery_city }}{% if order.delivery_city and order.delivery_state %}, {% endif %}{{ order.delivery_state }}</p>
+            <p>{{ order.delivery_phone }}</p>
+        </div>
+        <div class="meta-section">
+            <h4>Details</h4>
+            <p>Payment: {{ order.payment_method|replace('_', ' ')|title if order.payment_method else 'N/A' }}</p>
+            <p>Status: {{ order.payment_status|capitalize }}</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>Size</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th style="text-align:right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.variant_size }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₦{{ '{:,.2f}'.format(item.unit_price) }}</td>
+                <td style="text-align:right">₦{{ '{:,.2f}'.format(item.line_total) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div class="row"><span>Subtotal</span><span>₦{{ '{:,.2f}'.format(order.subtotal) }}</span></div>
+        <div class="row"><span>VAT (7.5%)</span><span>₦{{ '{:,.2f}'.format(order.tax_amount) }}</span></div>
+        <div class="row"><span>Delivery Fee</span><span>₦{{ '{:,.2f}'.format(order.delivery_fee) }}</span></div>
+        {% if order.discount %}<div class="row"><span>Discount</span><span>-₦{{ '{:,.2f}'.format(order.discount) }}</span></div>{% endif %}
+        <div class="row total"><span>Total</span><span>₦{{ '{:,.2f}'.format(order.total) }}</span></div>
+    </div>
+
+    <div class="footer">
+        <p>Asequible Services Limited &bull; Premium Rice Distributor</p>
+        <p>Thank you for your business!</p>
+        <p style="margin-top:8px">Designed by Place of Ideation</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block page_title %}Customer: {{ customer.name }}{% endblock %}
+
+{% block admin_content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold">{{ customer.name }}</h5>
+                <p class="mb-1"><i class="bi bi-telephone me-2"></i>{{ customer.phone }}</p>
+                {% if customer.email %}
+                <p class="mb-1"><i class="bi bi-envelope me-2"></i>{{ customer.email }}</p>
+                {% endif %}
+                {% if customer.address %}
+                <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>{{ customer.address }}</p>
+                {% endif %}
+                {% if customer.city or customer.state %}
+                <p class="mb-1 ps-4">{{ customer.city }}{% if customer.city and customer.state %}, {% endif %}{{ customer.state }}</p>
+                {% endif %}
+                <hr>
+                <div class="row text-center">
+                    <div class="col">
+                        <div class="h5 mb-0">{{ customer.order_count }}</div>
+                        <small class="text-muted">Orders</small>
+                    </div>
+                    <div class="col">
+                        <div class="h5 mb-0">{{ customer.total_spent|naira }}</div>
+                        <small class="text-muted">Spent</small>
+                    </div>
+                </div>
+                <hr>
+                <span class="badge {% if customer.customer_type == 'wholesale' %}bg-primary{% else %}bg-light text-dark{% endif %} fs-6">{{ customer.customer_type|capitalize }}</span>
+                <p class="small text-muted mt-2 mb-0">Customer since {{ customer.created_at.strftime('%d %b %Y') }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Order History</strong></div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Order #</th><th>Total</th><th>Status</th><th>Payment</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for o in customer.orders|sort(attribute='created_at', reverse=true) %}
+                        <tr onclick="location.href='/admin/orders/{{ o.id }}'" style="cursor:pointer">
+                            <td class="fw-semibold">{{ o.order_number }}</td>
+                            <td>{{ o.total|naira }}</td>
+                            <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ o.status }}</span></td>
+                            <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status }}</span></td>
+                            <td class="small text-muted">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not customer.orders %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No orders yet</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

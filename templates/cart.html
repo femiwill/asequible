@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Cart — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item active">Cart</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold text-brand mb-4"><i class="bi bi-cart3 me-2"></i>Shopping Cart</h2>
+
+        {% if items %}
+        <div class="row g-4">
+            <div class="col-lg-8">
+                {% for item in items %}
+                <div class="card border-0 shadow-sm mb-3" id="cart-item-{{ item.variant_id }}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center mb-2 mb-md-0">
+                                {% if item.image_url %}
+                                <img src="{{ item.image_url }}" class="rounded" width="80" height="80" style="object-fit:cover">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:80px;height:80px;margin:0 auto"><i class="bi bi-image text-muted"></i></div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-bold mb-1">{{ item.product_name }}</h6>
+                                <span class="badge bg-light text-dark">{{ item.size }}</span>
+                                <div class="small text-muted mt-1">{{ item.price|naira }} each</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-sm" style="max-width:130px">
+                                    <button class="btn btn-outline-secondary" onclick="updateCartQty('{{ item.variant_id }}', -1)">−</button>
+                                    <input type="number" class="form-control text-center" id="qty-{{ item.variant_id }}" value="{{ item.qty }}" min="1" max="{{ item.max_stock }}" onchange="setCartQty('{{ item.variant_id }}')">
+                                    <button class="btn btn-outline-secondary" onclick="updateCartQty('{{ item.variant_id }}', 1)">+</button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="fw-bold" id="line-{{ item.variant_id }}">{{ item.line_total|naira }}</div>
+                            </div>
+                            <div class="col-md-1 text-end">
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart('{{ item.variant_id }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <a href="/shop" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-2"></i>Continue Shopping</a>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Order Summary</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <strong id="cart-subtotal">{{ subtotal|naira }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>VAT (7.5%)</span>
+                            <span id="cart-tax">{{ tax|naira }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-muted small">
+                            <span>Delivery</span>
+                            <span>Calculated at checkout</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Estimated Total</strong>
+                            <strong class="text-brand h5 mb-0" id="cart-total">{{ (subtotal + tax)|naira }}</strong>
+                        </div>
+                        <a href="/checkout" class="btn btn-gold btn-lg w-100">
+                            <i class="bi bi-lock me-2"></i>Proceed to Checkout
+                        </a>
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Secure checkout with Paystack</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+            <h4 class="text-muted mt-3">Your cart is empty</h4>
+            <a href="/shop" class="btn btn-brand btn-lg mt-3"><i class="bi bi-shop me-2"></i>Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateCartQty(variantId, delta) {
+    const input = document.getElementById('qty-' + variantId);
+    let newQty = parseInt(input.value) + delta;
+    if (newQty < 1) newQty = 1;
+    if (newQty > parseInt(input.max)) newQty = parseInt(input.max);
+    input.value = newQty;
+    setCartQty(variantId);
+}
+
+function setCartQty(variantId) {
+    const qty = parseInt(document.getElementById('qty-' + variantId).value);
+    fetch('/api/cart/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({variant_id: variantId, quantity: qty})
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            updateCartBadge(data.cart_count);
+            location.reload();
+        }
+    });
+}
+
+function removeFromCart(variantId) {
+    fetch('/api/cart/remove', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({variant_id: variantId})
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            document.getElementById('cart-item-' + variantId).remove();
+            updateCartBadge(data.cart_count);
+            if (data.cart_count === 0) location.reload();
+            else location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

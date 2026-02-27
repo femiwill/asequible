@@ -1,0 +1,117 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3"><i class="bi bi-receipt"></i></div>
+                <div><div class="small text-muted">Total Orders</div><div class="h4 mb-0">{{ total_orders }}</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3"><i class="bi bi-clock"></i></div>
+                <div><div class="small text-muted">Pending</div><div class="h4 mb-0">{{ pending_orders }}</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-success bg-opacity-10 text-success me-3"><i class="bi bi-currency-exchange"></i></div>
+                <div><div class="small text-muted">Total Revenue</div><div class="h5 mb-0">{{ total_revenue|naira }}</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="stat-icon bg-info bg-opacity-10 text-info me-3"><i class="bi bi-people"></i></div>
+                <div><div class="small text-muted">Customers</div><div class="h4 mb-0">{{ total_customers }}</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-success">
+            <div class="card-body">
+                <div class="small text-muted">This Month</div>
+                <div class="h5 mb-0">{{ month_revenue|naira }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card shadow-sm border-start border-4 border-primary">
+            <div class="card-body">
+                <div class="small text-muted">Today's Orders</div>
+                <div class="h5 mb-0">{{ today_orders }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if low_stock %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle me-2"></i><strong>Low Stock Alert:</strong>
+    {% for v in low_stock %}
+    <span class="badge bg-warning text-dark ms-1">{{ v.product.name }} ({{ v.size }}) — {{ v.stock }} left</span>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <strong>Recent Orders</strong>
+        <a href="/admin/orders" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr onclick="location.href='/admin/orders/{{ order.id }}'" style="cursor:pointer">
+                    <td class="fw-semibold">{{ order.order_number }}</td>
+                    <td>{{ order.customer.name }}</td>
+                    <td>{{ order.total|naira }}</td>
+                    <td>
+                        <span class="badge badge-status
+                            {% if order.status == 'delivered' %}bg-success
+                            {% elif order.status == 'shipped' %}bg-info
+                            {% elif order.status == 'confirmed' %}bg-primary
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% else %}bg-warning text-dark{% endif %}">
+                            {{ order.status|capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if order.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ order.payment_status }}
+                        </span>
+                    </td>
+                    <td class="small text-muted">{{ order.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% endfor %}
+                {% if not recent_orders %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No orders yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

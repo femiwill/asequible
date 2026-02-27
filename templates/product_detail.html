@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — {{ site_name }}{% endblock %}
+{% block meta_description %}Buy {{ product.name }} online. Sizes: {% for v in product.variants if v.is_active %}{{ v.size }}{% if not loop.last %}, {% endif %}{% endfor %}. Premium quality Nigerian rice.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name }}",
+    "description": "{{ product.description[:200] if product.description else '' }}",
+    "image": "{{ product.image_url }}",
+    "brand": {"@type": "Brand", "name": "{{ site_name }}"},
+    "offers": [
+        {% for v in product.variants if v.is_active %}
+        {
+            "@type": "Offer",
+            "name": "{{ v.size }}",
+            "price": "{{ v.price }}",
+            "priceCurrency": "NGN",
+            "availability": "{% if v.in_stock %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ request.url_root }}"},
+        {"@type": "ListItem", "position": 2, "name": "Shop", "item": "{{ request.url_root }}shop"},
+        {"@type": "ListItem", "position": 3, "name": "{{ product.name }}"}
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item"><a href="/shop" class="text-brand">Shop</a></li>
+                <li class="breadcrumb-item active">{{ product.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-md-5">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" class="img-fluid rounded shadow-sm w-100" style="object-fit:cover" alt="{{ product.name }}">
+                {% else %}
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:400px">
+                    <i class="bi bi-image display-1 text-muted"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-7">
+                <h1 class="fw-bold text-brand mb-2">{{ product.name }}</h1>
+                <p class="text-muted mb-4">{{ product.description }}</p>
+
+                <h5 class="fw-bold mb-3">Select Size</h5>
+                <div class="row g-3 mb-4" id="variants">
+                    {% for variant in product.variants if variant.is_active %}
+                    <div class="col-6 col-lg-4">
+                        <div class="card border-2 h-100 variant-card" data-id="{{ variant.id }}" data-price="{{ variant.price }}"
+                             style="cursor:pointer" onclick="selectVariant(this, {{ variant.id }}, {{ variant.price }}, {{ variant.stock }})">
+                            <div class="card-body p-3 text-center">
+                                <div class="fw-bold mb-1">{{ variant.size }}</div>
+                                <div class="h4 fw-bold text-brand mb-1">{{ variant.price|naira }}</div>
+                                {% if variant.wholesale_price %}
+                                <div class="small text-muted">Wholesale: {{ variant.wholesale_price|naira }} ({{ variant.wholesale_min_qty }}+ units)</div>
+                                {% endif %}
+                                <div class="small mt-1 {% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                    {% if variant.stock > 20 %}<i class="bi bi-check-circle"></i> In Stock
+                                    {% elif variant.stock > 0 %}{{ variant.stock }} left
+                                    {% else %}<i class="bi bi-x-circle"></i> Out of Stock{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <label class="fw-semibold">Quantity:</label>
+                    <div class="input-group" style="width:140px">
+                        <button class="btn btn-outline-secondary" onclick="changeQty(-1)">−</button>
+                        <input type="number" class="form-control text-center" id="qty" value="1" min="1" max="999">
+                        <button class="btn btn-outline-secondary" onclick="changeQty(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 flex-wrap">
+                    <button id="addToCartBtn" class="btn btn-gold btn-lg px-5" onclick="addSelectedToCart()" disabled>
+                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                    </button>
+                    <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ ('Hello! I want to order ' + product.name)|urlencode }}" target="_blank" class="btn btn-outline-success btn-lg">
+                        <i class="bi bi-whatsapp me-2"></i>Order via WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedVariantId = null;
+let selectedStock = 0;
+
+function selectVariant(el, id, price, stock) {
+    if (stock <= 0) return;
+    document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('border-warning', 'shadow'));
+    el.classList.add('border-warning', 'shadow');
+    selectedVariantId = id;
+    selectedStock = stock;
+    document.getElementById('addToCartBtn').disabled = false;
+    document.getElementById('qty').max = stock;
+}
+
+function changeQty(delta) {
+    const input = document.getElementById('qty');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1;
+    if (selectedStock && val > selectedStock) val = selectedStock;
+    input.value = val;
+}
+
+function addSelectedToCart() {
+    if (!selectedVariantId) return;
+    const qty = parseInt(document.getElementById('qty').value);
+    addToCart(selectedVariantId, qty);
+}
+</script>
+{% endblock %}

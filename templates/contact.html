@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container" style="max-width:800px">
+        <h2 class="fw-bold text-brand text-center mb-2">Contact Us</h2>
+        <p class="text-center text-muted mb-5">We'd love to hear from you. Reach out via any of the channels below.</p>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                            <i class="bi bi-whatsapp text-success fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">WhatsApp</h5>
+                        <p class="text-muted small">Chat with us directly on WhatsApp for quick responses and easy ordering.</p>
+                        <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="btn btn-success">
+                            <i class="bi bi-whatsapp me-2"></i>Chat Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                            <i class="bi bi-telephone text-primary fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Phone</h5>
+                        <p class="text-muted small">Call us during business hours for enquiries and order support.</p>
+                        <a href="tel:{{ phone }}" class="btn btn-primary">
+                            <i class="bi bi-telephone me-2"></i>{{ phone }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                            <i class="bi bi-envelope text-warning fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Email</h5>
+                        <p class="text-muted small">Send us an email for business enquiries and partnership opportunities.</p>
+                        <a href="mailto:{{ site_email }}" class="btn btn-warning text-dark">
+                            <i class="bi bi-envelope me-2"></i>{{ site_email }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center">
+                    <div class="card-body p-4">
+                        <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                            <i class="bi bi-geo-alt text-danger fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold">Visit Us</h5>
+                        <p class="text-muted small">Come to our office/warehouse for direct purchases and business meetings.</p>
+                        <p class="fw-semibold">{{ site_name }}<br>Lagos, Nigeria</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

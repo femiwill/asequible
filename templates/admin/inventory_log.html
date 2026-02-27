@@ -1,0 +1,51 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Inventory Log{% endblock %}
+{% block page_title %}Inventory Log{% endblock %}
+
+{% block admin_content %}
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Action</th>
+                    <th>Change</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>Reference</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td class="small">{{ log.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                    <td>{{ log.variant.product.name }} ({{ log.variant.size }})</td>
+                    <td>
+                        <span class="badge
+                            {% if log.action == 'restock' %}bg-success
+                            {% elif log.action == 'sale' %}bg-primary
+                            {% elif log.action == 'return' %}bg-info
+                            {% else %}bg-secondary{% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td class="fw-bold {% if log.quantity_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ '+' if log.quantity_change > 0 }}{{ log.quantity_change }}
+                    </td>
+                    <td>{{ log.stock_before }}</td>
+                    <td>{{ log.stock_after }}</td>
+                    <td><small>{{ log.reference or '-' }}</small></td>
+                    <td><small class="text-muted">{{ log.notes or '-' }}</small></td>
+                </tr>
+                {% endfor %}
+                {% if not logs %}
+                <tr><td colspan="8" class="text-center text-muted py-4">No inventory movements yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

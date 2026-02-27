@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Shop — {{ site_name }}{% endblock %}
+{% block meta_description %}Shop premium Nigerian rice online. Multiple sizes available: 50kg, 25kg, 10kg, 5kg bags. Wholesale and retail.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ request.url_root }}"},
+        {"@type": "ListItem", "position": 2, "name": "Shop", "item": "{{ request.url_root }}shop"}
+    ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item active">Shop</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold text-brand">Our Rice Collection</h1>
+            <p class="text-muted">Premium quality rice available in multiple sizes</p>
+        </div>
+
+        {% for product in products %}
+        <div class="card border-0 shadow-sm mb-5 overflow-hidden">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center mb-3 mb-md-0">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" class="img-fluid rounded" style="max-height:250px;object-fit:cover" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:250px">
+                            <i class="bi bi-image display-1 text-muted"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h3 class="fw-bold mb-2">
+                            <a href="/product/{{ product.slug }}" class="text-decoration-none text-brand">{{ product.name }}</a>
+                        </h3>
+                        <p class="text-muted mb-3">{{ product.description[:150] }}{% if product.description|length > 150 %}...{% endif %}</p>
+
+                        <div class="row g-3">
+                            {% for variant in product.variants if variant.is_active %}
+                            <div class="col-6 col-lg-3">
+                                <div class="card h-100 border {% if not variant.in_stock %}border-secondary opacity-50{% else %}border-warning{% endif %}">
+                                    <div class="card-body p-3 text-center">
+                                        <div class="fw-bold text-brand mb-1">{{ variant.size }}</div>
+                                        <div class="h5 fw-bold mb-1">{{ variant.price|naira }}</div>
+                                        {% if variant.wholesale_price %}
+                                        <div class="small text-muted mb-2">
+                                            Wholesale: {{ variant.wholesale_price|naira }}
+                                            <br>(min {{ variant.wholesale_min_qty }} units)
+                                        </div>
+                                        {% endif %}
+                                        <div class="small mb-2 {% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                            {% if variant.stock > 20 %}In Stock
+                                            {% elif variant.stock > 0 %}{{ variant.stock }} left
+                                            {% else %}Out of Stock{% endif %}
+                                        </div>
+                                        {% if variant.in_stock %}
+                                        <button class="btn btn-sm btn-gold w-100" onclick="addToCart({{ variant.id }})">
+                                            <i class="bi bi-cart-plus me-1"></i>Add
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <a href="/product/{{ product.slug }}" class="btn btn-outline-primary btn-sm mt-3">View Full Details <i class="bi bi-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not products %}
+        <div class="text-center py-5">
+            <i class="bi bi-shop display-1 text-muted"></i>
+            <h4 class="text-muted mt-3">No products available yet</h4>
+            <p class="text-muted">Check back soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

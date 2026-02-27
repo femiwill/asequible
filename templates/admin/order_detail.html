@@ -1,0 +1,154 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block page_title %}Order {{ order.order_number }}{% endblock %}
+
+{% block admin_content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- Order Items -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Order Items</strong></div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr><th>Product</th><th>Size</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.variant_size }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit_price|naira }}</td>
+                            <td>{{ item.line_total|naira }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr><td colspan="4" class="text-end">Subtotal</td><td>{{ order.subtotal|naira }}</td></tr>
+                        <tr><td colspan="4" class="text-end">Tax (VAT)</td><td>{{ order.tax_amount|naira }}</td></tr>
+                        <tr><td colspan="4" class="text-end">Delivery Fee</td><td>{{ order.delivery_fee|naira }}</td></tr>
+                        {% if order.discount %}
+                        <tr><td colspan="4" class="text-end">Discount</td><td>-{{ order.discount|naira }}</td></tr>
+                        {% endif %}
+                        <tr class="fw-bold"><td colspan="4" class="text-end">Total</td><td>{{ order.total|naira }}</td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Delivery Details</strong></div>
+            <div class="card-body">
+                <p><strong>{{ order.delivery_name }}</strong></p>
+                <p class="mb-1">{{ order.delivery_address }}</p>
+                <p class="mb-1">{{ order.delivery_city }}{% if order.delivery_city and order.delivery_state %}, {% endif %}{{ order.delivery_state }}</p>
+                <p class="mb-0"><i class="bi bi-telephone me-1"></i>{{ order.delivery_phone }}</p>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Payment History</strong></div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr><th>Method</th><th>Amount</th><th>Reference</th><th>Status</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for p in order.payments %}
+                        <tr>
+                            <td>{{ p.method }}</td>
+                            <td>{{ p.amount|naira }}</td>
+                            <td><small>{{ p.reference or p.paystack_ref or '-' }}</small></td>
+                            <td><span class="badge {% if p.status == 'success' %}bg-success{% else %}bg-secondary{% endif %}">{{ p.status }}</span></td>
+                            <td class="small">{{ p.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not order.payments %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">No payments recorded</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Status -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Order Status</strong></div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge badge-status fs-6
+                        {% if order.status == 'delivered' %}bg-success
+                        {% elif order.status == 'shipped' %}bg-info
+                        {% elif order.status == 'confirmed' or order.status == 'processing' %}bg-primary
+                        {% elif order.status == 'cancelled' %}bg-danger
+                        {% else %}bg-warning text-dark{% endif %}">
+                        {{ order.status|capitalize }}
+                    </span>
+                    <span class="badge fs-6 ms-2 {% if order.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ order.payment_status }}
+                    </span>
+                </div>
+                <form method="POST" action="/admin/orders/{{ order.id }}/update-status">
+                    <select name="status" class="form-select form-select-sm mb-2">
+                        {% for s in ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'] %}
+                        <option value="{{ s }}" {{ 'selected' if order.status == s }}>{{ s|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm btn-primary w-100">Update Status</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Customer</strong></div>
+            <div class="card-body">
+                <p class="fw-semibold mb-1">{{ order.customer.name }}</p>
+                <p class="small mb-1"><i class="bi bi-telephone me-1"></i>{{ order.customer.phone }}</p>
+                {% if order.customer.email %}
+                <p class="small mb-1"><i class="bi bi-envelope me-1"></i>{{ order.customer.email }}</p>
+                {% endif %}
+                <span class="badge bg-light text-dark">{{ order.customer.customer_type }}</span>
+                <a href="/admin/customers/{{ order.customer.id }}" class="btn btn-sm btn-outline-primary mt-2 d-block">View Customer</a>
+            </div>
+        </div>
+
+        <!-- Confirm Payment -->
+        {% if order.payment_status != 'paid' %}
+        <div class="card shadow-sm mb-4 border-warning">
+            <div class="card-header bg-warning bg-opacity-10"><strong>Confirm Payment</strong></div>
+            <div class="card-body">
+                <form method="POST" action="/admin/orders/{{ order.id }}/confirm-payment">
+                    <div class="mb-2">
+                        <input type="text" name="reference" class="form-control form-control-sm" placeholder="Payment reference">
+                    </div>
+                    <div class="mb-2">
+                        <input type="text" name="notes" class="form-control form-control-sm" placeholder="Notes">
+                    </div>
+                    <button class="btn btn-sm btn-success w-100" onclick="return confirm('Confirm payment of {{ order.total|naira }}?')">
+                        <i class="bi bi-check-circle me-1"></i>Confirm Payment
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <a href="/invoice/{{ order.order_number }}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2">
+                    <i class="bi bi-printer me-1"></i>Print Invoice
+                </a>
+                <a href="/admin/orders" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customers{% endblock %}
+
+{% block admin_content %}
+<p class="text-muted mb-3">{{ customers|length }} customer(s)</p>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr onclick="location.href='/admin/customers/{{ c.id }}'" style="cursor:pointer">
+                    <td class="fw-semibold">{{ c.name }}</td>
+                    <td>{{ c.phone }}</td>
+                    <td>{{ c.email or '-' }}</td>
+                    <td><span class="badge {% if c.customer_type == 'wholesale' %}bg-primary{% else %}bg-light text-dark{% endif %}">{{ c.customer_type }}</span></td>
+                    <td>{{ c.order_count }}</td>
+                    <td>{{ c.total_spent|naira }}</td>
+                    <td class="small text-muted">{{ c.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% endfor %}
+                {% if not customers %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No customers yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

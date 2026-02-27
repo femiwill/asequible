@@ -1,0 +1,115 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Sales Report{% endblock %}
+{% block page_title %}Sales Report{% endblock %}
+
+{% block admin_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex gap-2 mb-4">
+    <a href="/admin/reports/sales?period=7" class="btn btn-sm {% if period == '7' %}btn-primary{% else %}btn-outline-primary{% endif %}">7 Days</a>
+    <a href="/admin/reports/sales?period=30" class="btn btn-sm {% if period == '30' %}btn-primary{% else %}btn-outline-primary{% endif %}">30 Days</a>
+    <a href="/admin/reports/sales?period=90" class="btn btn-sm {% if period == '90' %}btn-primary{% else %}btn-outline-primary{% endif %}">90 Days</a>
+    <a href="/admin/reports/sales?period=365" class="btn btn-sm {% if period == '365' %}btn-primary{% else %}btn-outline-primary{% endif %}">1 Year</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body text-center">
+                <div class="small text-muted">Total Revenue</div>
+                <div class="h3 text-success mb-0">{{ total_revenue|naira }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body text-center">
+                <div class="small text-muted">Total Orders</div>
+                <div class="h3 mb-0">{{ total_orders }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body text-center">
+                <div class="small text-muted">Paid Orders</div>
+                <div class="h3 mb-0">{{ paid_orders }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Revenue Over Time</strong></div>
+            <div class="card-body"><canvas id="revenueChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Payment Methods</strong></div>
+            <div class="card-body"><canvas id="paymentChart" height="300"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white"><strong>Best Sellers</strong></div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr>
+            </thead>
+            <tbody>
+                {% for name, data in best_sellers %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td class="fw-semibold">{{ name }}</td>
+                    <td>{{ data.qty }}</td>
+                    <td>{{ data.revenue|naira }}</td>
+                </tr>
+                {% endfor %}
+                {% if not best_sellers %}
+                <tr><td colspan="4" class="text-center text-muted py-3">No sales data yet</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const dailyData = {{ daily_data|safe }};
+const labels = Object.keys(dailyData).sort();
+const revenues = labels.map(d => dailyData[d].revenue);
+const orders = labels.map(d => dailyData[d].orders);
+
+new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+        labels: labels.map(d => d.slice(5)),
+        datasets: [{
+            label: 'Revenue (₦)', data: revenues,
+            backgroundColor: 'rgba(29, 53, 87, 0.7)', borderRadius: 4
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '₦' + (v/1000) + 'k' } } }
+    }
+});
+
+const paymentData = {{ payment_breakdown|tojson|safe }};
+const pLabels = Object.keys(paymentData);
+const pValues = pLabels.map(k => paymentData[k].total);
+new Chart(document.getElementById('paymentChart'), {
+    type: 'doughnut',
+    data: {
+        labels: pLabels.map(l => l.replace('_', ' ')),
+        datasets: [{ data: pValues, backgroundColor: ['#1D3557', '#E9C46A', '#2A9D8F', '#E76F51'] }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+});
+</script>
+{% endblock %}

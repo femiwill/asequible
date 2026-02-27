@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item"><a href="/cart" class="text-brand">Cart</a></li>
+                <li class="breadcrumb-item active">Checkout</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="fw-bold text-brand mb-4"><i class="bi bi-lock me-2"></i>Checkout</h2>
+
+        <form method="POST" id="checkoutForm">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <!-- Customer Info -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white"><strong><i class="bi bi-person me-2"></i>Your Information</strong></div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Full Name *</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Phone Number *</label>
+                                    <input type="tel" name="phone" class="form-control" placeholder="+234..." required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Email</label>
+                                    <input type="email" name="email" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Customer Type</label>
+                                    <select name="customer_type" class="form-select">
+                                        <option value="retail">Retail</option>
+                                        <option value="wholesale">Wholesale</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Address *</label>
+                                    <textarea name="address" class="form-control" rows="2" required></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">City</label>
+                                    <input type="text" name="city" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">State *</label>
+                                    <select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()">
+                                        <option value="">Select State</option>
+                                        {% for zone in delivery_zones %}
+                                        <option value="{{ zone.state }}">{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
+                        <div class="card-body">
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" value="paystack" id="payPaystack" checked>
+                                <label class="form-check-label fw-semibold" for="payPaystack">
+                                    <i class="bi bi-credit-card me-2"></i>Pay Online (Paystack)
+                                    <div class="small text-muted fw-normal">Card, bank transfer, USSD</div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer" id="payBank">
+                                <label class="form-check-label fw-semibold" for="payBank">
+                                    <i class="bi bi-bank me-2"></i>Bank Transfer
+                                    <div class="small text-muted fw-normal">Transfer to our bank account</div>
+                                </label>
+                            </div>
+                            <div class="form-check p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" value="cash_on_delivery" id="payCOD">
+                                <label class="form-check-label fw-semibold" for="payCOD">
+                                    <i class="bi bi-cash me-2"></i>Cash on Delivery
+                                    <div class="small text-muted fw-normal">Pay when your order arrives</div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm sticky-top" style="top:80px">
+                        <div class="card-header bg-white"><strong>Order Summary</strong></div>
+                        <div class="card-body">
+                            {% for item in items %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="small">{{ item.product_name }} ({{ item.size }}) x{{ item.qty }}</span>
+                                <strong class="small">{{ item.line_total|naira }}</strong>
+                            </div>
+                            {% endfor %}
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal</span>
+                                <strong>{{ subtotal|naira }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>VAT (7.5%)</span>
+                                <span>{{ tax|naira }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Delivery Fee</span>
+                                <span id="deliveryFeeDisplay">Select state</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong class="h5 mb-0">Total</strong>
+                                <strong class="h5 mb-0 text-brand" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
+                            </div>
+
+                            <button type="submit" class="btn btn-gold btn-lg w-100">
+                                <i class="bi bi-check-circle me-2"></i>Place Order
+                            </button>
+
+                            <div class="text-center mt-3">
+                                <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Your information is secure</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const subtotal = {{ subtotal }};
+const tax = {{ tax }};
+
+function updateDeliveryFee() {
+    const state = document.getElementById('stateSelect').value;
+    if (!state) return;
+
+    fetch('/api/delivery-fee?state=' + encodeURIComponent(state))
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('deliveryFeeDisplay').textContent = '₦' + data.fee.toLocaleString('en', {minimumFractionDigits: 2});
+        const total = subtotal + tax + data.fee;
+        document.getElementById('totalDisplay').textContent = '₦' + total.toLocaleString('en', {minimumFractionDigits: 2});
+    });
+}
+</script>
+{% endblock %}

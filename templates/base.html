@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ site_tagline }} - Order premium quality rice online from {{ site_name }}{% endblock %}">
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#1D3557">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    {% block head %}{% endblock %}
+    <style>
+        :root {
+            --blue: #1D3557;
+            --blue-light: #264573;
+            --blue-dark: #152844;
+            --gold: #E9C46A;
+            --gold-light: #F0D68A;
+            --gold-dark: #D4A843;
+            --cream: #FFFBF0;
+        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #333; }
+        .bg-brand { background-color: var(--blue) !important; }
+        .bg-gold { background-color: var(--gold) !important; }
+        .text-brand { color: var(--blue) !important; }
+        .text-gold { color: var(--gold) !important; }
+        .btn-brand { background-color: var(--blue); color: #fff; border: none; }
+        .btn-brand:hover { background-color: var(--blue-light); color: #fff; }
+        .btn-gold { background-color: var(--gold); color: var(--blue); border: none; font-weight: 600; }
+        .btn-gold:hover { background-color: var(--gold-dark); color: var(--blue); }
+        .btn-outline-gold { border: 2px solid var(--gold); color: var(--gold); }
+        .btn-outline-gold:hover { background-color: var(--gold); color: var(--blue); }
+
+        .navbar-brand-custom { font-weight: 700; font-size: 1.3rem; color: var(--gold) !important; letter-spacing: 0.5px; }
+        .nav-link-custom { color: rgba(255,255,255,0.85) !important; font-weight: 500; }
+        .nav-link-custom:hover, .nav-link-custom.active { color: var(--gold) !important; }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+            color: #fff; padding: 5rem 0; position: relative; overflow: hidden;
+        }
+        .hero-section::after {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 60%; height: 200%;
+            background: radial-gradient(ellipse, rgba(233,196,106,0.1) 0%, transparent 70%);
+        }
+
+        .card-product { border: none; border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+        .card-product:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .card-product .card-img-top { height: 220px; object-fit: cover; background: var(--cream); }
+
+        .badge-gold { background-color: var(--gold); color: var(--blue); }
+        .badge-status { font-size: 0.8rem; padding: 0.4em 0.8em; }
+
+        footer { background-color: var(--blue-dark); color: rgba(255,255,255,0.7); }
+        footer a { color: var(--gold); text-decoration: none; }
+        footer a:hover { color: var(--gold-light); }
+
+        .whatsapp-float {
+            position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+            background: #25D366; color: #fff; width: 56px; height: 56px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-decoration: none; transition: transform 0.2s;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); color: #fff; }
+
+        .mobile-bottom-nav {
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff; border-top: 1px solid #eee; z-index: 999;
+            padding: 0.5rem 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .mobile-bottom-nav a {
+            flex: 1; text-align: center; color: #666; text-decoration: none; font-size: 0.75rem;
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
+        .mobile-bottom-nav a.active, .mobile-bottom-nav a:hover { color: var(--blue); }
+        .mobile-bottom-nav i { font-size: 1.2rem; }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 70px; }
+            .whatsapp-float { bottom: 80px; }
+        }
+
+        .loading-spinner {
+            display: none; width: 1.5rem; height: 1.5rem;
+            border: 2px solid #ccc; border-top-color: var(--blue);
+            border-radius: 50%; animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+    {% block structured_data %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ site_name }}",
+        "description": "{{ site_tagline }}",
+        "url": "{{ request.url_root }}"
+    }
+    </script>
+    {% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-brand sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom" href="/">
+                <i class="bi bi-grain me-2"></i>{{ site_name }}
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list text-white fs-4"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/shop">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/about">About</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/contact">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="/track">Track Order</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom position-relative" href="/cart">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            {% if cart_count > 0 %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" id="cart-badge">{{ cart_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Error Page -->
+    {% if error_code %}
+    <div class="container py-5 text-center">
+        <h1 class="display-1 text-brand fw-bold">{{ error_code }}</h1>
+        <p class="lead text-muted">{{ error_message }}</p>
+        <a href="/" class="btn btn-brand btn-lg mt-3"><i class="bi bi-house me-2"></i>Go Home</a>
+    </div>
+    {% else %}
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="py-5 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="text-white mb-3"><i class="bi bi-grain me-2"></i>{{ site_name }}</h5>
+                    <p class="small">{{ site_tagline }}</p>
+                    <p class="small"><i class="bi bi-telephone me-2"></i>{{ phone }}</p>
+                    <p class="small"><i class="bi bi-envelope me-2"></i>{{ site_email }}</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-white mb-3">Quick Links</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="/shop">Shop Rice</a></li>
+                        <li class="mb-2"><a href="/track">Track Your Order</a></li>
+                        <li class="mb-2"><a href="/about">About Us</a></li>
+                        <li class="mb-2"><a href="/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="text-white mb-3">Order via WhatsApp</h5>
+                    <p class="small">Prefer to order via WhatsApp? Click below to chat with us directly.</p>
+                    <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="btn btn-outline-gold btn-sm">
+                        <i class="bi bi-whatsapp me-2"></i>Chat on WhatsApp
+                    </a>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-6 small">&copy; {{ current_year }} {{ site_name }}. All rights reserved.</div>
+                <div class="col-md-6 text-md-end small">Designed by <a href="#">Place of Ideation</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="whatsapp-float d-none d-md-flex" title="Chat on WhatsApp">
+        <i class="bi bi-whatsapp"></i>
+    </a>
+
+    <!-- Mobile Bottom Nav -->
+    <div class="mobile-bottom-nav">
+        <a href="/"><i class="bi bi-house"></i>Home</a>
+        <a href="/shop"><i class="bi bi-shop"></i>Shop</a>
+        <a href="/cart"><i class="bi bi-cart3"></i>Cart{% if cart_count > 0 %} ({{ cart_count }}){% endif %}</a>
+        <a href="/track"><i class="bi bi-truck"></i>Track</a>
+        <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank"><i class="bi bi-whatsapp"></i>Chat</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+    <script>
+        function updateCartBadge(count) {
+            let badge = document.getElementById('cart-badge');
+            if (count > 0) {
+                if (!badge) {
+                    const cartLink = document.querySelector('a[href="/cart"]');
+                    if (cartLink) {
+                        badge = document.createElement('span');
+                        badge.id = 'cart-badge';
+                        badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark';
+                        cartLink.appendChild(badge);
+                    }
+                }
+                if (badge) badge.textContent = count;
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        function addToCart(variantId, qty) {
+            fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({variant_id: variantId, quantity: qty || 1})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartBadge(data.cart_count);
+                    showToast('Added to cart!');
+                }
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed top-0 end-0 m-3 p-3 bg-success text-white rounded shadow';
+            toast.style.zIndex = '9999';
+            toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+    </script>
+</body>
+</html>

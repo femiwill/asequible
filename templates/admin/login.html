@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - {{ site_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #1D3557 0%, #152844 100%); min-height: 100vh; display: flex; align-items: center; }
+        .login-card { max-width: 400px; margin: 0 auto; border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card login-card p-4">
+            <div class="card-body text-center">
+                <i class="bi bi-grain display-4 text-warning mb-3 d-block"></i>
+                <h4 class="fw-bold mb-1">Admin Panel</h4>
+                <p class="text-muted small">Asequible Services Limited</p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} py-2 small">{{ message }}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                <form method="POST" class="mt-4">
+                    <div class="mb-3">
+                        <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter admin password" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-lg w-100" style="background:#1D3557;color:#fff;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </button>
+                </form>
+                <a href="/" class="btn btn-link text-muted mt-3 small">Back to website</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

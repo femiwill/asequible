@@ -1,0 +1,189 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{{ 'Edit' if product else 'New' }} Product{% endblock %}
+{% block page_title %}{{ 'Edit' if product else 'New' }} Product{% endblock %}
+
+{% block admin_content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" id="productForm">
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Product Name *</label>
+                    <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Slug</label>
+                    <input type="text" name="slug" class="form-control" value="{{ product.slug if product else '' }}" placeholder="auto-generated">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Category</label>
+                    <input type="text" name="category" class="form-control" value="{{ product.category if product else 'rice' }}">
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Image URL</label>
+                    <input type="text" name="image_url" class="form-control" value="{{ product.image_url if product else '' }}" placeholder="/static/rice-hero.jpg">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Description</label>
+                    <textarea name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+                </div>
+                <div class="col-auto">
+                    <div class="form-check">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="isActive" {{ 'checked' if not product or product.is_active }}>
+                        <label class="form-check-label" for="isActive">Active</label>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="form-check">
+                        <input type="checkbox" name="is_featured" class="form-check-input" id="isFeatured" {{ 'checked' if product and product.is_featured }}>
+                        <label class="form-check-label" for="isFeatured">Featured</label>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-semibold mb-3">Variants (Sizes & Pricing)</h5>
+            <div id="variants">
+                {% if product and product.variants %}
+                {% for v in product.variants %}
+                <div class="variant-row border rounded p-3 mb-3">
+                    <input type="hidden" name="variant_id" value="{{ v.id }}">
+                    <div class="row g-2">
+                        <div class="col-md-2">
+                            <label class="form-label small">Size *</label>
+                            <input type="text" name="variant_size" class="form-control form-control-sm" value="{{ v.size }}" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">Weight (kg)</label>
+                            <input type="number" name="variant_weight" class="form-control form-control-sm" value="{{ v.weight_kg }}" step="0.1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Price (₦) *</label>
+                            <input type="number" name="variant_price" class="form-control form-control-sm" value="{{ v.price }}" step="0.01" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Wholesale Price</label>
+                            <input type="number" name="variant_wholesale_price" class="form-control form-control-sm" value="{{ v.wholesale_price or '' }}" step="0.01">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">W. Min Qty</label>
+                            <input type="number" name="variant_wholesale_qty" class="form-control form-control-sm" value="{{ v.wholesale_min_qty }}">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">Stock</label>
+                            <input type="number" name="variant_stock" class="form-control form-control-sm" value="{{ v.stock }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">SKU</label>
+                            <input type="text" name="variant_sku" class="form-control form-control-sm" value="{{ v.sku or '' }}">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <div class="form-check">
+                                <input type="checkbox" name="variant_active" class="form-check-input" value="{{ loop.index0 }}" {{ 'checked' if v.is_active }}>
+                                <label class="form-check-label small">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="variant-row border rounded p-3 mb-3">
+                    <input type="hidden" name="variant_id" value="">
+                    <div class="row g-2">
+                        <div class="col-md-2">
+                            <label class="form-label small">Size *</label>
+                            <input type="text" name="variant_size" class="form-control form-control-sm" placeholder="50kg Bag" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">Weight (kg)</label>
+                            <input type="number" name="variant_weight" class="form-control form-control-sm" placeholder="50" step="0.1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Price (₦) *</label>
+                            <input type="number" name="variant_price" class="form-control form-control-sm" placeholder="75000" step="0.01" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">Wholesale Price</label>
+                            <input type="number" name="variant_wholesale_price" class="form-control form-control-sm" step="0.01">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">W. Min Qty</label>
+                            <input type="number" name="variant_wholesale_qty" class="form-control form-control-sm" value="10">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">Stock</label>
+                            <input type="number" name="variant_stock" class="form-control form-control-sm" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">SKU</label>
+                            <input type="text" name="variant_sku" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <div class="form-check">
+                                <input type="checkbox" name="variant_active" class="form-check-input" value="0" checked>
+                                <label class="form-check-label small">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-4" onclick="addVariant()">
+                <i class="bi bi-plus me-1"></i>Add Variant
+            </button>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>{{ 'Update' if product else 'Create' }} Product</button>
+                <a href="/admin/products" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let variantIndex = {{ product.variants|length if product and product.variants else 1 }};
+function addVariant() {
+    const html = `
+    <div class="variant-row border rounded p-3 mb-3">
+        <input type="hidden" name="variant_id" value="">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label small">Size *</label>
+                <input type="text" name="variant_size" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small">Weight (kg)</label>
+                <input type="number" name="variant_weight" class="form-control form-control-sm" step="0.1">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Price (₦) *</label>
+                <input type="number" name="variant_price" class="form-control form-control-sm" step="0.01" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Wholesale Price</label>
+                <input type="number" name="variant_wholesale_price" class="form-control form-control-sm" step="0.01">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small">W. Min Qty</label>
+                <input type="number" name="variant_wholesale_qty" class="form-control form-control-sm" value="10">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small">Stock</label>
+                <input type="number" name="variant_stock" class="form-control form-control-sm" value="0">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">SKU</label>
+                <input type="text" name="variant_sku" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-1 d-flex align-items-end gap-1">
+                <div class="form-check">
+                    <input type="checkbox" name="variant_active" class="form-check-input" value="${variantIndex}" checked>
+                    <label class="form-check-label small">Active</label>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    document.getElementById('variants').insertAdjacentHTML('beforeend', html);
+    variantIndex++;
+}
+</script>
+{% endblock %}

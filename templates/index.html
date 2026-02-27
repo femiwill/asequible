@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}
+{% block meta_description %}Buy premium quality Nigerian rice online. Retail and wholesale. Fast delivery. {{ site_name }}.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "{{ site_name }}",
+    "description": "{{ site_tagline }}",
+    "url": "{{ request.url_root }}",
+    "contactPoint": {"@type": "ContactPoint", "telephone": "{{ phone }}", "contactType": "sales"}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section text-center">
+    <div class="container position-relative" style="z-index:1">
+        <span class="badge bg-gold text-dark px-3 py-2 mb-3 fs-6"><i class="bi bi-grain me-1"></i>Premium Rice Distributor</span>
+        <h1 class="display-4 fw-bold mb-3">Premium Quality Rice,<br>Delivered to Your Door</h1>
+        <p class="lead mb-4 opacity-75 mx-auto" style="max-width:600px">
+            {{ site_tagline }}. Serving retail and wholesale customers across Nigeria with the finest locally sourced rice.
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/shop" class="btn btn-gold btn-lg px-4"><i class="bi bi-shop me-2"></i>Shop Now</a>
+            <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ 'Hello! I would like to place an order.'|urlencode }}" target="_blank" class="btn btn-outline-gold btn-lg px-4">
+                <i class="bi bi-whatsapp me-2"></i>Order via WhatsApp
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Badges -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <div class="row text-center g-3">
+            <div class="col-6 col-md-3">
+                <i class="bi bi-truck fs-3 text-brand d-block mb-1"></i>
+                <strong class="small">Nationwide Delivery</strong>
+                <div class="text-muted" style="font-size:0.75rem">All 36 states + FCT</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-shield-check fs-3 text-brand d-block mb-1"></i>
+                <strong class="small">Quality Guaranteed</strong>
+                <div class="text-muted" style="font-size:0.75rem">Premium parboiled rice</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-cash-stack fs-3 text-brand d-block mb-1"></i>
+                <strong class="small">Wholesale Prices</strong>
+                <div class="text-muted" style="font-size:0.75rem">Bulk discounts available</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-headset fs-3 text-brand d-block mb-1"></i>
+                <strong class="small">24/7 Support</strong>
+                <div class="text-muted" style="font-size:0.75rem">WhatsApp & phone</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+{% if featured %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-brand">Our Products</h2>
+            <p class="text-muted">Premium quality rice in sizes for every need</p>
+        </div>
+        <div class="row g-4">
+            {% for product in featured %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="row g-0">
+                        <div class="col-md-5">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="w-100 h-100" style="object-fit:cover;min-height:300px" alt="{{ product.name }}">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center h-100" style="min-height:300px">
+                                <i class="bi bi-image display-1 text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-7 d-flex align-items-center">
+                            <div class="p-4">
+                                <span class="badge bg-gold text-dark mb-2">Featured</span>
+                                <h3 class="fw-bold">{{ product.name }}</h3>
+                                <p class="text-muted">{{ product.description[:200] }}{% if product.description|length > 200 %}...{% endif %}</p>
+
+                                <div class="row g-2 mb-4">
+                                    {% for variant in product.variants if variant.is_active %}
+                                    <div class="col-6 col-lg-3">
+                                        <div class="border rounded p-2 text-center {% if not variant.in_stock %}opacity-50{% endif %}">
+                                            <div class="fw-bold small">{{ variant.size }}</div>
+                                            <div class="text-brand fw-bold">{{ variant.price|naira }}</div>
+                                            {% if variant.wholesale_price %}
+                                            <div class="text-muted" style="font-size:0.7rem">Wholesale: {{ variant.wholesale_price|naira }}</div>
+                                            {% endif %}
+                                            {% if variant.in_stock %}
+                                            <button class="btn btn-sm btn-gold mt-1 w-100" onclick="addToCart({{ variant.id }})">Add to Cart</button>
+                                            {% else %}
+                                            <span class="badge bg-secondary mt-1">Out of Stock</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <a href="/product/{{ product.slug }}" class="btn btn-brand"><i class="bi bi-eye me-2"></i>View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="py-5 bg-brand text-white text-center">
+    <div class="container">
+        <h3 class="fw-bold mb-3">Need a Large Order?</h3>
+        <p class="opacity-75 mb-4">We offer competitive wholesale prices for bulk purchases. Contact us for a custom quote.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ 'Hello! I am interested in wholesale pricing.'|urlencode }}" target="_blank" class="btn btn-gold btn-lg">
+                <i class="bi bi-whatsapp me-2"></i>Chat for Wholesale Prices
+            </a>
+            <a href="/shop" class="btn btn-outline-gold btn-lg">Browse Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- How it Works -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <h3 class="text-center fw-bold text-brand mb-4">How It Works</h3>
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                    <i class="bi bi-cart-plus text-white fs-4"></i>
+                </div>
+                <h5 class="fw-bold">1. Choose Your Rice</h5>
+                <p class="text-muted small">Select your preferred size and quantity from our product range.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                    <i class="bi bi-credit-card text-white fs-4"></i>
+                </div>
+                <h5 class="fw-bold">2. Pay Securely</h5>
+                <p class="text-muted small">Pay online with Paystack, bank transfer, or cash on delivery.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                    <i class="bi bi-truck text-white fs-4"></i>
+                </div>
+                <h5 class="fw-bold">3. Get Delivered</h5>
+                <p class="text-muted small">We deliver to your doorstep anywhere in Nigeria.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
