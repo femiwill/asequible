@@ -4,32 +4,32 @@
 {% block content %}
 <section class="py-5">
     <div class="container" style="max-width:500px">
-        <div class="text-center mb-4">
+        <div class="text-center mb-4 reveal">
             <h2 class="fw-bold text-brand"><i class="bi bi-person-plus me-2"></i>Create Account</h2>
             <p class="text-muted">Join {{ site_name }} for faster checkout and order tracking.</p>
         </div>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm card-elevated reveal">
             <div class="card-body p-4">
                 <form method="POST">
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Full Name *</label>
+                        <label class="form-label">Full Name *</label>
                         <input type="text" name="name" class="form-control" required value="{{ request.form.get('name', '') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Phone Number *</label>
+                        <label class="form-label">Phone Number *</label>
                         <input type="tel" name="phone" class="form-control" placeholder="+234..." required value="{{ request.form.get('phone', '') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Email</label>
+                        <label class="form-label">Email</label>
                         <input type="email" name="email" class="form-control" value="{{ request.form.get('email', '') }}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Password *</label>
+                        <label class="form-label">Password *</label>
                         <input type="password" name="password" class="form-control" minlength="6" required placeholder="At least 6 characters">
                     </div>
                     <div class="mb-4">
-                        <label class="form-label small fw-semibold">Confirm Password *</label>
+                        <label class="form-label">Confirm Password *</label>
                         <input type="password" name="confirm_password" class="form-control" minlength="6" required>
                     </div>
                     <button type="submit" class="btn btn-brand btn-lg w-100">

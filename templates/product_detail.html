@@ -37,8 +37,57 @@
 </script>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    .product-image-container {
+        overflow: hidden;
+        border-radius: var(--radius-lg);
+    }
+    .product-image-container img {
+        transition: transform 0.5s ease;
+        width: 100%;
+        object-fit: cover;
+    }
+    .product-image-container:hover img {
+        transform: scale(1.08);
+    }
+    .variant-card {
+        border: 2px solid #e9ecef !important;
+        border-radius: var(--radius-md) !important;
+        cursor: pointer;
+    }
+    .variant-card:hover {
+        border-color: var(--gold) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(233,196,106,0.15);
+    }
+    .variant-card.selected {
+        border-color: var(--gold) !important;
+        box-shadow: 0 0 0 3px rgba(233,196,106,0.25), 0 4px 16px rgba(233,196,106,0.15);
+        background: var(--cream);
+    }
+    .variant-card.selected .variant-check {
+        display: flex;
+    }
+    .variant-check {
+        display: none;
+        position: absolute;
+        top: -8px; right: -8px;
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: var(--blue);
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 800;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-4 bg-light border-bottom">
+<section class="py-4 breadcrumb-section">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
@@ -53,16 +102,18 @@
 <section class="py-5">
     <div class="container">
         <div class="row g-5">
-            <div class="col-md-5">
-                {% if product.image_url %}
-                <img src="{{ product.image_url }}" class="img-fluid rounded shadow-sm w-100" style="object-fit:cover" alt="{{ product.name }}">
-                {% else %}
-                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:400px">
-                    <i class="bi bi-image display-1 text-muted"></i>
+            <div class="col-md-5 reveal-left">
+                <div class="product-image-container shadow-sm">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" class="img-fluid" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:400px">
+                        <i class="bi bi-image display-1 text-muted"></i>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
-            <div class="col-md-7">
+            <div class="col-md-7 reveal-right">
                 <h1 class="fw-bold text-brand mb-2">{{ product.name }}</h1>
                 <p class="text-muted mb-4">{{ product.description }}</p>
 
@@ -70,11 +121,12 @@
                 <div class="row g-3 mb-4" id="variants">
                     {% for variant in product.variants if variant.is_active %}
                     <div class="col-6 col-lg-4">
-                        <div class="card border-2 h-100 variant-card" data-id="{{ variant.id }}" data-price="{{ variant.price }}"
-                             style="cursor:pointer" onclick="selectVariant(this, {{ variant.id }}, {{ variant.price }}, {{ variant.stock }})">
+                        <div class="card h-100 variant-card position-relative" data-id="{{ variant.id }}" data-price="{{ variant.price }}"
+                             onclick="selectVariant(this, {{ variant.id }}, {{ variant.price }}, {{ variant.stock }})">
+                            <div class="variant-check"><i class="bi bi-check-lg"></i></div>
                             <div class="card-body p-3 text-center">
                                 <div class="fw-bold mb-1">{{ variant.size }}</div>
-                                <div class="h4 fw-bold text-brand mb-1">{{ variant.price|naira }}</div>
+                                <div class="h4 fw-bold text-brand mb-1 price-display">{{ variant.price|naira }}</div>
                                 {% if variant.wholesale_price %}
                                 <div class="small text-muted">Wholesale: {{ variant.wholesale_price|naira }} ({{ variant.wholesale_min_qty }}+ units)</div>
                                 {% endif %}
@@ -99,8 +151,8 @@
                 </div>
 
                 <div class="d-flex gap-3 flex-wrap">
-                    <button id="addToCartBtn" class="btn btn-gold btn-lg px-5" onclick="addSelectedToCart()" disabled>
-                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                    <button id="addToCartBtn" class="btn btn-gold btn-lg px-5" onclick="addSelectedToCart(this)" disabled>
+                        <span class="btn-text"><i class="bi bi-cart-plus me-2"></i>Add to Cart</span>
                     </button>
                     <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ ('Hello! I want to order ' + product.name)|urlencode }}" target="_blank" class="btn btn-outline-success btn-lg">
                         <i class="bi bi-whatsapp me-2"></i>Order via WhatsApp
@@ -119,8 +171,10 @@ let selectedStock = 0;
 
 function selectVariant(el, id, price, stock) {
     if (stock <= 0) return;
-    document.querySelectorAll('.variant-card').forEach(c => c.classList.remove('border-warning', 'shadow'));
-    el.classList.add('border-warning', 'shadow');
+    document.querySelectorAll('.variant-card').forEach(function(c) {
+        c.classList.remove('selected');
+    });
+    el.classList.add('selected');
     selectedVariantId = id;
     selectedStock = stock;
     document.getElementById('addToCartBtn').disabled = false;
@@ -128,17 +182,17 @@ function selectVariant(el, id, price, stock) {
 }
 
 function changeQty(delta) {
-    const input = document.getElementById('qty');
-    let val = parseInt(input.value) + delta;
+    var input = document.getElementById('qty');
+    var val = parseInt(input.value) + delta;
     if (val < 1) val = 1;
     if (selectedStock && val > selectedStock) val = selectedStock;
     input.value = val;
 }
 
-function addSelectedToCart() {
+function addSelectedToCart(btnEl) {
     if (!selectedVariantId) return;
-    const qty = parseInt(document.getElementById('qty').value);
-    addToCart(selectedVariantId, qty);
+    var qty = parseInt(document.getElementById('qty').value);
+    addToCart(selectedVariantId, qty, btnEl);
 }
 </script>
 {% endblock %}

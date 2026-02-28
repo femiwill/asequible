@@ -1,24 +1,45 @@
 {% extends 'base.html' %}
 {% block title %}Track Order — {{ site_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .timeline-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    .timeline-circle.active {
+        box-shadow: 0 0 0 4px rgba(29,53,87,0.15);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="py-5">
     <div class="container" style="max-width:700px">
-        <h2 class="fw-bold text-brand text-center mb-4"><i class="bi bi-truck me-2"></i>Track Your Order</h2>
+        <div class="text-center mb-4">
+            <span class="section-label">Order Status</span>
+            <h2 class="fw-bold text-brand gold-underline">Track Your Order</h2>
+        </div>
 
         {% if my_orders %}
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white"><strong><i class="bi bi-bag me-2"></i>Your Recent Orders</strong></div>
+        <div class="card border-0 shadow-sm mb-4 card-elevated reveal">
+            <div class="card-header bg-white border-0 pt-3"><strong><i class="bi bi-bag me-2"></i>Your Recent Orders</strong></div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th class="small">Order #</th>
-                                <th class="small">Date</th>
-                                <th class="small">Total</th>
-                                <th class="small">Status</th>
-                                <th class="small">Payment</th>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Payment</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -27,7 +48,7 @@
                             <tr>
                                 <td class="small fw-bold">{{ o.order_number }}</td>
                                 <td class="small">{{ o.created_at.strftime('%d %b %Y') }}</td>
-                                <td class="small">{{ o.total|naira }}</td>
+                                <td class="small price-display">{{ o.total|naira }}</td>
                                 <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %} badge-status">{{ o.status|capitalize }}</span></td>
                                 <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %} badge-status">{{ o.payment_status|capitalize }}</span></td>
                                 <td><a href="/order/{{ o.order_number }}" class="btn btn-sm btn-outline-primary">View</a></td>
@@ -40,16 +61,16 @@
         </div>
         {% endif %}
 
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
+        <div class="card border-0 shadow-sm mb-4 card-elevated reveal">
+            <div class="card-body p-4">
                 <form method="POST">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-semibold">Order Number</label>
+                            <label class="form-label">Order Number</label>
                             <input type="text" name="order_number" class="form-control" placeholder="ASQ-XXXXXX-XXXX" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-semibold">Phone Number</label>
+                            <label class="form-label">Phone Number</label>
                             <input type="tel" name="phone" class="form-control" placeholder="+234..." required>
                         </div>
                         <div class="col-12">
@@ -61,8 +82,8 @@
         </div>
 
         {% if order %}
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
+        <div class="card border-0 shadow-sm card-elevated reveal">
+            <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <h5 class="fw-bold text-brand">{{ order.order_number }}</h5>
                     <small class="text-muted">Placed on {{ order.created_at.strftime('%d %B %Y at %H:%M') }}</small>
@@ -75,14 +96,14 @@
                     {% set current_idx = statuses.index(order.status) if order.status in statuses else 0 %}
 
                     <div class="d-flex justify-content-between position-relative">
-                        <div class="position-absolute" style="top:16px;left:10%;right:10%;height:3px;background:#e9ecef;z-index:0">
-                            <div style="width:{{ (current_idx / 4 * 100)|int }}%;height:100%;background:#1D3557;transition:width 0.5s"></div>
+                        <div class="position-absolute" style="top:20px;left:10%;right:10%;height:3px;background:#e9ecef;z-index:0">
+                            <div style="width:{{ (current_idx / 4 * 100)|int }}%;height:100%;background:var(--blue);transition:width 0.8s ease"></div>
                         </div>
                         {% for s in statuses %}
                         <div class="text-center position-relative" style="z-index:1;flex:1">
-                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-1
-                                {% if loop.index0 <= current_idx %}bg-brand text-white{% else %}bg-light text-muted{% endif %}"
-                                style="width:36px;height:36px">
+                            <div class="timeline-circle d-inline-flex align-items-center justify-content-center mb-1
+                                {% if loop.index0 <= current_idx %}bg-brand text-white active{% else %}bg-light text-muted{% endif %}"
+                                {% if loop.index0 == current_idx %}style="box-shadow:0 0 0 4px rgba(29,53,87,0.2)"{% endif %}>
                                 <i class="bi bi-{{ status_icons[s] }}"></i>
                             </div>
                             <div class="small {% if loop.index0 <= current_idx %}fw-bold{% else %}text-muted{% endif %}">{{ s|capitalize }}</div>
@@ -103,16 +124,16 @@
                         {% for item in order.items %}
                         <div class="d-flex justify-content-between small mb-1">
                             <span>{{ item.product_name }} ({{ item.variant_size }}) x{{ item.quantity }}</span>
-                            <strong>{{ item.line_total|naira }}</strong>
+                            <strong class="price-display">{{ item.line_total|naira }}</strong>
                         </div>
                         {% endfor %}
                     </div>
                     <div class="col-md-6">
                         <h6 class="fw-bold mb-2">Summary</h6>
-                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span>{{ order.subtotal|naira }}</span></div>
-                        <div class="d-flex justify-content-between small mb-1"><span>VAT</span><span>{{ order.tax_amount|naira }}</span></div>
-                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span>{{ order.delivery_fee|naira }}</span></div>
-                        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ order.total|naira }}</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span class="price-display">{{ order.subtotal|naira }}</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>VAT</span><span class="price-display">{{ order.tax_amount|naira }}</span></div>
+                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span class="price-display">{{ order.delivery_fee|naira }}</span></div>
+                        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span class="price-display">{{ order.total|naira }}</span></div>
                         <hr>
                         <div class="small">
                             <strong>Payment:</strong>

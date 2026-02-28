@@ -1,15 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}Contact Us — {{ site_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .contact-card {
+        border: 1.5px solid transparent !important;
+    }
+    .contact-card:hover {
+        border-color: var(--gold) !important;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="py-5">
     <div class="container" style="max-width:800px">
-        <h2 class="fw-bold text-brand text-center mb-2">Contact Us</h2>
-        <p class="text-center text-muted mb-5">We'd love to hear from you. Reach out via any of the channels below.</p>
+        <div class="text-center mb-5">
+            <span class="section-label">Get In Touch</span>
+            <h2 class="fw-bold text-brand gold-underline">Contact Us</h2>
+            <p class="text-muted mt-3">We'd love to hear from you. Reach out via any of the channels below.</p>
+        </div>
 
-        <div class="row g-4">
+        <div class="row g-4 reveal-stagger reveal">
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card border-0 shadow-sm h-100 text-center contact-card">
                     <div class="card-body p-4">
                         <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
                             <i class="bi bi-whatsapp text-success fs-3"></i>
@@ -23,7 +39,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card border-0 shadow-sm h-100 text-center contact-card">
                     <div class="card-body p-4">
                         <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
                             <i class="bi bi-telephone text-primary fs-3"></i>
@@ -37,7 +53,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card border-0 shadow-sm h-100 text-center contact-card">
                     <div class="card-body p-4">
                         <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
                             <i class="bi bi-envelope text-warning fs-3"></i>
@@ -51,7 +67,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100 text-center">
+                <div class="card border-0 shadow-sm h-100 text-center contact-card">
                     <div class="card-body p-4">
                         <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
                             <i class="bi bi-geo-alt text-danger fs-3"></i>

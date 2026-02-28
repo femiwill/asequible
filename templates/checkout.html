@@ -1,8 +1,50 @@
 {% extends 'base.html' %}
 {% block title %}Checkout — {{ site_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .checkout-progress {
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 2rem;
+    }
+    .checkout-step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #aaa;
+    }
+    .checkout-step.done { color: #28a745; }
+    .checkout-step.active { color: var(--blue); }
+    .checkout-step .step-dot {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: #e9ecef;
+        color: #aaa;
+    }
+    .checkout-step.done .step-dot { background: #28a745; color: #fff; }
+    .checkout-step.active .step-dot { background: var(--blue); color: #fff; }
+    .checkout-connector {
+        width: 50px;
+        height: 2px;
+        background: #e9ecef;
+        align-self: center;
+        margin: 0 0.5rem;
+    }
+    .checkout-connector.done { background: #28a745; }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="py-4 bg-light border-bottom">
+<section class="py-4 breadcrumb-section">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
@@ -16,6 +58,24 @@
 
 <section class="py-5">
     <div class="container">
+        <!-- Progress Bar -->
+        <div class="checkout-progress">
+            <div class="checkout-step done">
+                <span class="step-dot"><i class="bi bi-check-lg"></i></span>
+                <span class="d-none d-sm-inline">Cart</span>
+            </div>
+            <div class="checkout-connector done"></div>
+            <div class="checkout-step active">
+                <span class="step-dot">2</span>
+                <span class="d-none d-sm-inline">Checkout</span>
+            </div>
+            <div class="checkout-connector"></div>
+            <div class="checkout-step">
+                <span class="step-dot">3</span>
+                <span class="d-none d-sm-inline">Confirmation</span>
+            </div>
+        </div>
+
         <h2 class="fw-bold text-brand mb-4"><i class="bi bi-lock me-2"></i>Checkout</h2>
 
         <form method="POST" id="checkoutForm">
@@ -23,7 +83,7 @@
                 <div class="col-lg-7">
                     <!-- Customer Info -->
                     <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white">
+                        <div class="card-header bg-white border-0 pt-3">
                             <strong><i class="bi bi-person me-2"></i>Your Information</strong>
                             {% if checkout_user and checkout_user.is_registered %}
                             <span class="badge bg-success float-end"><i class="bi bi-check-circle me-1"></i>Logged in as {{ checkout_user.name }}</span>
@@ -32,19 +92,19 @@
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">Full Name *</label>
+                                    <label class="form-label">Full Name *</label>
                                     <input type="text" name="name" class="form-control" value="{{ checkout_user.name if checkout_user else '' }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">Phone Number *</label>
+                                    <label class="form-label">Phone Number *</label>
                                     <input type="tel" name="phone" class="form-control" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">Email</label>
+                                    <label class="form-label">Email</label>
                                     <input type="email" name="email" class="form-control" value="{{ checkout_user.email if checkout_user else '' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">Customer Type</label>
+                                    <label class="form-label">Customer Type</label>
                                     <select name="customer_type" class="form-select">
                                         <option value="retail" {{ 'selected' if not checkout_user or checkout_user.customer_type == 'retail' else '' }}>Retail</option>
                                         <option value="wholesale" {{ 'selected' if checkout_user and checkout_user.customer_type == 'wholesale' else '' }}>Wholesale</option>
@@ -56,19 +116,19 @@
 
                     <!-- Delivery Address -->
                     <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
+                        <div class="card-header bg-white border-0 pt-3"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-12">
-                                    <label class="form-label small fw-semibold">Address *</label>
+                                    <label class="form-label">Address *</label>
                                     <textarea name="address" class="form-control" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">City</label>
+                                    <label class="form-label">City</label>
                                     <input type="text" name="city" class="form-control" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label small fw-semibold">State *</label>
+                                    <label class="form-label">State *</label>
                                     <select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()">
                                         <option value="">Select State</option>
                                         {% for zone in delivery_zones %}
@@ -82,7 +142,7 @@
 
                     <!-- Payment Method -->
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
+                        <div class="card-header bg-white border-0 pt-3"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
                         <div class="card-body">
                             <div class="form-check mb-3 p-3 border rounded">
                                 <input class="form-check-input" type="radio" name="payment_method" value="paystack" id="payPaystack" checked>
@@ -111,36 +171,36 @@
 
                 <!-- Order Summary -->
                 <div class="col-lg-5">
-                    <div class="card border-0 shadow-sm sticky-top" style="top:80px">
-                        <div class="card-header bg-white"><strong>Order Summary</strong></div>
+                    <div class="card border-0 shadow-sm card-elevated sticky-top" style="top:80px; border-radius:var(--radius-lg)">
+                        <div class="card-header bg-white border-0 pt-3"><strong>Order Summary</strong></div>
                         <div class="card-body">
                             {% for item in items %}
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="small">{{ item.product_name }} ({{ item.size }}) x{{ item.qty }}</span>
-                                <strong class="small">{{ item.line_total|naira }}</strong>
+                                <strong class="small price-display">{{ item.line_total|naira }}</strong>
                             </div>
                             {% endfor %}
                             <hr>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal</span>
-                                <strong>{{ subtotal|naira }}</strong>
+                                <strong class="price-display">{{ subtotal|naira }}</strong>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>VAT (7.5%)</span>
-                                <span>{{ tax|naira }}</span>
+                                <span class="price-display">{{ tax|naira }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Delivery Fee</span>
-                                <span id="deliveryFeeDisplay">Select state</span>
+                                <span class="price-display" id="deliveryFeeDisplay">Select state</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-3">
                                 <strong class="h5 mb-0">Total</strong>
-                                <strong class="h5 mb-0 text-brand" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
+                                <strong class="h5 mb-0 text-brand price-display" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
                             </div>
 
-                            <button type="submit" class="btn btn-gold btn-lg w-100">
-                                <i class="bi bi-check-circle me-2"></i>Place Order
+                            <button type="submit" class="btn btn-gold btn-lg w-100" id="placeOrderBtn">
+                                <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Place Order</span>
                             </button>
 
                             <div class="text-center mt-3">
@@ -157,22 +217,29 @@
 
 {% block scripts %}
 <script>
-const subtotal = {{ subtotal }};
-const tax = {{ tax }};
+var subtotal = {{ subtotal }};
+var tax = {{ tax }};
 
 function updateDeliveryFee() {
-    const state = document.getElementById('stateSelect').value;
+    var state = document.getElementById('stateSelect').value;
     if (!state) return;
 
     fetch('/api/delivery-fee?state=' + encodeURIComponent(state))
-    .then(r => r.json())
-    .then(data => {
-        document.getElementById('deliveryFeeDisplay').textContent = '₦' + data.fee.toLocaleString('en', {minimumFractionDigits: 2});
-        const total = subtotal + tax + data.fee;
-        document.getElementById('totalDisplay').textContent = '₦' + total.toLocaleString('en', {minimumFractionDigits: 2});
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        document.getElementById('deliveryFeeDisplay').textContent = '\u20A6' + data.fee.toLocaleString('en', {minimumFractionDigits: 2});
+        var total = subtotal + tax + data.fee;
+        document.getElementById('totalDisplay').textContent = '\u20A6' + total.toLocaleString('en', {minimumFractionDigits: 2});
     });
 }
 // Auto-calculate if state is pre-selected
 if (document.getElementById('stateSelect').value) { updateDeliveryFee(); }
+
+// Form submit loading state
+document.getElementById('checkoutForm').addEventListener('submit', function() {
+    var btn = document.getElementById('placeOrderBtn');
+    btn.classList.add('btn-loading');
+    btn.disabled = true;
+});
 </script>
 {% endblock %}

@@ -2,7 +2,7 @@
 {% block title %}Cart — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="py-4 bg-light border-bottom">
+<section class="py-4 breadcrumb-section">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
@@ -21,7 +21,7 @@
         <div class="row g-4">
             <div class="col-lg-8">
                 {% for item in items %}
-                <div class="card border-0 shadow-sm mb-3" id="cart-item-{{ item.variant_id }}">
+                <div class="card border-0 shadow-sm mb-3" id="cart-item-{{ item.variant_id }}" style="transition: opacity 0.3s ease, transform 0.3s ease;">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-2 text-center mb-2 mb-md-0">
@@ -34,7 +34,7 @@
                             <div class="col-md-4">
                                 <h6 class="fw-bold mb-1">{{ item.product_name }}</h6>
                                 <span class="badge bg-light text-dark">{{ item.size }}</span>
-                                <div class="small text-muted mt-1">{{ item.price|naira }} each</div>
+                                <div class="small text-muted mt-1 price-display">{{ item.price|naira }} each</div>
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group input-group-sm" style="max-width:130px">
@@ -44,7 +44,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2 text-end">
-                                <div class="fw-bold" id="line-{{ item.variant_id }}">{{ item.line_total|naira }}</div>
+                                <div class="fw-bold price-display" id="line-{{ item.variant_id }}">{{ item.line_total|naira }}</div>
                             </div>
                             <div class="col-md-1 text-end">
                                 <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart('{{ item.variant_id }}')">
@@ -60,16 +60,16 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm">
+                <div class="card border-0 shadow-sm card-elevated" style="border-radius:var(--radius-lg)">
                     <div class="card-body">
                         <h5 class="fw-bold mb-3">Order Summary</h5>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal</span>
-                            <strong id="cart-subtotal">{{ subtotal|naira }}</strong>
+                            <strong class="price-display" id="cart-subtotal">{{ subtotal|naira }}</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>VAT (7.5%)</span>
-                            <span id="cart-tax">{{ tax|naira }}</span>
+                            <span class="price-display" id="cart-tax">{{ tax|naira }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2 text-muted small">
                             <span>Delivery</span>
@@ -78,7 +78,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Estimated Total</strong>
-                            <strong class="text-brand h5 mb-0" id="cart-total">{{ (subtotal + tax)|naira }}</strong>
+                            <strong class="text-brand h5 mb-0 price-display" id="cart-total">{{ (subtotal + tax)|naira }}</strong>
                         </div>
                         <a href="/checkout" class="btn btn-gold btn-lg w-100">
                             <i class="bi bi-lock me-2"></i>Proceed to Checkout
@@ -91,10 +91,11 @@
             </div>
         </div>
         {% else %}
-        <div class="text-center py-5">
-            <i class="bi bi-cart-x display-1 text-muted"></i>
-            <h4 class="text-muted mt-3">Your cart is empty</h4>
-            <a href="/shop" class="btn btn-brand btn-lg mt-3"><i class="bi bi-shop me-2"></i>Start Shopping</a>
+        <div class="empty-state">
+            <i class="bi bi-cart-x"></i>
+            <h4>Your cart is empty</h4>
+            <p>Looks like you haven't added any items yet.</p>
+            <a href="/shop" class="btn btn-brand btn-lg"><i class="bi bi-shop me-2"></i>Start Shopping</a>
         </div>
         {% endif %}
     </div>
@@ -104,8 +105,8 @@
 {% block scripts %}
 <script>
 function updateCartQty(variantId, delta) {
-    const input = document.getElementById('qty-' + variantId);
-    let newQty = parseInt(input.value) + delta;
+    var input = document.getElementById('qty-' + variantId);
+    var newQty = parseInt(input.value) + delta;
     if (newQty < 1) newQty = 1;
     if (newQty > parseInt(input.max)) newQty = parseInt(input.max);
     input.value = newQty;
@@ -113,12 +114,12 @@ function updateCartQty(variantId, delta) {
 }
 
 function setCartQty(variantId) {
-    const qty = parseInt(document.getElementById('qty-' + variantId).value);
+    var qty = parseInt(document.getElementById('qty-' + variantId).value);
     fetch('/api/cart/update', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({variant_id: variantId, quantity: qty})
-    }).then(r => r.json()).then(data => {
+    }).then(function(r) { return r.json(); }).then(function(data) {
         if (data.success) {
             updateCartBadge(data.cart_count);
             location.reload();
@@ -127,18 +128,25 @@ function setCartQty(variantId) {
 }
 
 function removeFromCart(variantId) {
-    fetch('/api/cart/remove', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({variant_id: variantId})
-    }).then(r => r.json()).then(data => {
-        if (data.success) {
-            document.getElementById('cart-item-' + variantId).remove();
-            updateCartBadge(data.cart_count);
-            if (data.cart_count === 0) location.reload();
-            else location.reload();
-        }
-    });
+    var el = document.getElementById('cart-item-' + variantId);
+    // Animate out
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-30px)';
+
+    setTimeout(function() {
+        fetch('/api/cart/remove', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({variant_id: variantId})
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+                el.remove();
+                updateCartBadge(data.cart_count);
+                if (data.cart_count === 0) location.reload();
+                else location.reload();
+            }
+        });
+    }, 300);
 }
 </script>
 {% endblock %}

@@ -15,12 +15,74 @@
 </script>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.15;
+        animation: heroGlow 6s ease-in-out infinite alternate;
+    }
+    .hero-glow-1 {
+        width: 400px; height: 400px;
+        background: var(--gold);
+        top: -100px; right: -50px;
+    }
+    .hero-glow-2 {
+        width: 300px; height: 300px;
+        background: var(--gold-light);
+        bottom: -80px; left: -30px;
+        animation-delay: 3s;
+    }
+    @keyframes heroGlow {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(20px, -15px) scale(1.15); }
+    }
+    .trust-icon-bg {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(233,196,106,0.12), rgba(233,196,106,0.04));
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+    }
+    .step-circle {
+        width: 72px; height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .step-number {
+        position: absolute;
+        top: -6px; right: -6px;
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: var(--blue);
+        font-weight: 800;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero -->
 <section class="hero-section text-center">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
     <div class="container position-relative" style="z-index:1">
-        <span class="badge bg-gold text-dark px-3 py-2 mb-3 fs-6"><i class="bi bi-grain me-1"></i>Premium Rice Distributor</span>
-        <h1 class="display-4 fw-bold mb-3">Premium Quality Rice,<br>Delivered to Your Door</h1>
+        <span class="section-label" style="color:var(--gold-light)"><i class="bi bi-grain me-1"></i> Premium Rice Distributor</span>
+        <h1 class="display-4 fw-bold mb-3" style="max-width:700px;margin:0 auto">Premium Quality Rice,<br>Delivered to Your Door</h1>
         <p class="lead mb-4 opacity-75 mx-auto" style="max-width:600px">
             {{ site_tagline }}. Serving retail and wholesale customers across Nigeria with the finest locally sourced rice.
         </p>
@@ -36,20 +98,26 @@
 <!-- Trust Badges -->
 <section class="py-4 bg-white border-bottom">
     <div class="container">
-        <div class="row text-center g-3">
+        <div class="row text-center g-3 reveal-stagger reveal">
             <div class="col-6 col-md-4">
-                <i class="bi bi-shield-check fs-3 text-brand d-block mb-1"></i>
-                <strong class="small">Quality Guaranteed</strong>
+                <div class="trust-icon-bg">
+                    <i class="bi bi-shield-check fs-4 text-brand"></i>
+                </div>
+                <strong class="small d-block">Quality Guaranteed</strong>
                 <div class="text-muted" style="font-size:0.75rem">Premium parboiled rice</div>
             </div>
             <div class="col-6 col-md-4">
-                <i class="bi bi-cash-stack fs-3 text-brand d-block mb-1"></i>
-                <strong class="small">Wholesale Prices</strong>
+                <div class="trust-icon-bg">
+                    <i class="bi bi-cash-stack fs-4 text-brand"></i>
+                </div>
+                <strong class="small d-block">Wholesale Prices</strong>
                 <div class="text-muted" style="font-size:0.75rem">Bulk discounts available</div>
             </div>
             <div class="col-6 col-md-4">
-                <i class="bi bi-headset fs-3 text-brand d-block mb-1"></i>
-                <strong class="small">24/7 Support</strong>
+                <div class="trust-icon-bg">
+                    <i class="bi bi-headset fs-4 text-brand"></i>
+                </div>
+                <strong class="small d-block">24/7 Support</strong>
                 <div class="text-muted" style="font-size:0.75rem">WhatsApp & phone</div>
             </div>
         </div>
@@ -60,13 +128,14 @@
 {% if featured %}
 <section class="py-5">
     <div class="container">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold text-brand">Our Products</h2>
-            <p class="text-muted">Premium quality rice in sizes for every need</p>
+        <div class="text-center mb-5">
+            <span class="section-label">What We Offer</span>
+            <h2 class="fw-bold text-brand gold-underline">Our Products</h2>
+            <p class="text-muted mt-3">Premium quality rice in sizes for every need</p>
         </div>
         <div class="row g-4">
             {% for product in featured %}
-            <div class="col-12">
+            <div class="col-12 reveal">
                 <div class="card border-0 shadow-sm overflow-hidden">
                     <div class="row g-0">
                         <div class="col-md-5">
@@ -89,12 +158,12 @@
                                     <div class="col-6 col-lg-3">
                                         <div class="border rounded p-2 text-center {% if not variant.in_stock %}opacity-50{% endif %}">
                                             <div class="fw-bold small">{{ variant.size }}</div>
-                                            <div class="text-brand fw-bold">{{ variant.price|naira }}</div>
+                                            <div class="text-brand fw-bold price-display">{{ variant.price|naira }}</div>
                                             {% if variant.wholesale_price %}
                                             <div class="text-muted" style="font-size:0.7rem">Wholesale: {{ variant.wholesale_price|naira }}</div>
                                             {% endif %}
                                             {% if variant.in_stock %}
-                                            <button class="btn btn-sm btn-gold mt-1 w-100" onclick="addToCart({{ variant.id }})">Add to Cart</button>
+                                            <button class="btn btn-sm btn-gold mt-1 w-100" onclick="addToCart({{ variant.id }}, 1, this)">Add to Cart</button>
                                             {% else %}
                                             <span class="badge bg-secondary mt-1">Out of Stock</span>
                                             {% endif %}
@@ -116,10 +185,11 @@
 {% endif %}
 
 <!-- CTA -->
-<section class="py-5 bg-brand text-white text-center">
-    <div class="container">
+<section class="py-5 bg-brand-gradient text-white text-center">
+    <div class="container reveal">
+        <span class="section-label" style="color:var(--gold-light)">Bulk Orders</span>
         <h3 class="fw-bold mb-3">Need a Large Order?</h3>
-        <p class="opacity-75 mb-4">We offer competitive wholesale prices for bulk purchases. Contact us for a custom quote.</p>
+        <p class="opacity-75 mb-4 mx-auto" style="max-width:500px">We offer competitive wholesale prices for bulk purchases. Contact us for a custom quote.</p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ 'Hello! I am interested in wholesale pricing.'|urlencode }}" target="_blank" class="btn btn-gold btn-lg">
                 <i class="bi bi-whatsapp me-2"></i>Chat for Wholesale Prices
@@ -132,27 +202,33 @@
 <!-- How it Works -->
 <section class="py-5 bg-white">
     <div class="container">
-        <h3 class="text-center fw-bold text-brand mb-4">How It Works</h3>
-        <div class="row g-4 text-center">
+        <div class="text-center mb-5">
+            <span class="section-label">Simple Process</span>
+            <h3 class="fw-bold text-brand gold-underline">How It Works</h3>
+        </div>
+        <div class="row g-4 text-center reveal-stagger reveal">
             <div class="col-md-4">
-                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                <div class="step-circle">
                     <i class="bi bi-cart-plus text-white fs-4"></i>
+                    <span class="step-number">1</span>
                 </div>
-                <h5 class="fw-bold">1. Choose Your Rice</h5>
+                <h5 class="fw-bold">Choose Your Rice</h5>
                 <p class="text-muted small">Select your preferred size and quantity from our product range.</p>
             </div>
             <div class="col-md-4">
-                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                <div class="step-circle">
                     <i class="bi bi-credit-card text-white fs-4"></i>
+                    <span class="step-number">2</span>
                 </div>
-                <h5 class="fw-bold">2. Pay Securely</h5>
+                <h5 class="fw-bold">Pay Securely</h5>
                 <p class="text-muted small">Pay online with Paystack, bank transfer, or cash on delivery.</p>
             </div>
             <div class="col-md-4">
-                <div class="rounded-circle bg-brand d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+                <div class="step-circle">
                     <i class="bi bi-truck text-white fs-4"></i>
+                    <span class="step-number">3</span>
                 </div>
-                <h5 class="fw-bold">3. Get Delivered</h5>
+                <h5 class="fw-bold">Get Delivered</h5>
                 <p class="text-muted small">We deliver to your doorstep anywhere in Nigeria.</p>
             </div>
         </div>
