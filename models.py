@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
@@ -63,12 +64,22 @@ class Customer(db.Model):
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     notes = db.Column(db.Text)
+    password_hash = db.Column(db.String(256))
+    is_registered = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     orders = db.relationship('Order', backref='customer', lazy=True)
 
     def __repr__(self):
         return f'<Customer {self.name}>'
+
+    def set_password(self, pw):
+        self.password_hash = generate_password_hash(pw)
+
+    def check_password(self, pw):
+        if not self.password_hash:
+            return False
+        return check_password_hash(self.password_hash, pw)
 
     @property
     def total_spent(self):

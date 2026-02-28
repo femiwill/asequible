@@ -40,6 +40,13 @@ def naira_filter(value):
 def inject_globals():
     cart = session.get('cart', {})
     cart_count = sum(item['qty'] for item in cart.values())
+    current_user = None
+    customer_id = session.get('customer_id')
+    if customer_id:
+        current_user = Customer.query.get(customer_id)
+        if current_user and not current_user.is_registered:
+            current_user = None
+            session.pop('customer_id', None)
     return {
         'site_name': get_setting('site_name', 'Asequible Services Limited'),
         'site_tagline': get_setting('site_tagline', 'Premium Quality Rice'),
@@ -49,6 +56,7 @@ def inject_globals():
         'cart_count': cart_count,
         'nigerian_states': nigerian_states_list(),
         'current_year': datetime.utcnow().year,
+        'current_user': current_user,
     }
 
 
@@ -80,6 +88,179 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     flash('Logged out.', 'info')
     return redirect(url_for('admin_login'))
+
+
+# ─── Customer Auth ───────────────────────────────────────────────────
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        customer_id = session.get('customer_id')
+        if not customer_id:
+            flash('Please log in to access your account.', 'warning')
+            return redirect(url_for('login', next=request.path))
+        customer = Customer.query.get(customer_id)
+        if not customer or not customer.is_registered:
+            session.pop('customer_id', None)
+            flash('Please log in to access your account.', 'warning')
+            return redirect(url_for('login', next=request.path))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if session.get('customer_id'):
+        customer = Customer.query.get(session['customer_id'])
+        if customer and customer.is_registered:
+            return redirect(url_for('account'))
+
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        confirm = request.form.get('confirm_password', '')
+
+        if not all([name, phone, password]):
+            flash('Name, phone, and password are required.', 'danger')
+            return render_template('auth/register.html')
+
+        if password != confirm:
+            flash('Passwords do not match.', 'danger')
+            return render_template('auth/register.html')
+
+        if len(password) < 6:
+            flash('Password must be at least 6 characters.', 'danger')
+            return render_template('auth/register.html')
+
+        existing = Customer.query.filter_by(phone=phone, is_registered=True).first()
+        if existing:
+            flash('An account with this phone number already exists. Please log in.', 'warning')
+            return redirect(url_for('login'))
+
+        if email:
+            existing_email = Customer.query.filter_by(email=email, is_registered=True).first()
+            if existing_email:
+                flash('An account with this email already exists. Please log in.', 'warning')
+                return redirect(url_for('login'))
+
+        customer = Customer.query.filter_by(phone=phone).first()
+        if customer:
+            customer.name = name
+            if email:
+                customer.email = email
+        else:
+            customer = Customer(name=name, phone=phone, email=email)
+            db.session.add(customer)
+
+        customer.set_password(password)
+        customer.is_registered = True
+        db.session.commit()
+
+        session['customer_id'] = customer.id
+        flash('Account created! Welcome to Asequible.', 'success')
+        return redirect(url_for('account'))
+
+    return render_template('auth/register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if session.get('customer_id'):
+        customer = Customer.query.get(session['customer_id'])
+        if customer and customer.is_registered:
+            return redirect(url_for('account'))
+
+    if request.method == 'POST':
+        identifier = request.form.get('identifier', '').strip()
+        password = request.form.get('password', '')
+
+        if not identifier or not password:
+            flash('Please enter your phone/email and password.', 'danger')
+            return render_template('auth/login.html')
+
+        customer = Customer.query.filter(
+            db.or_(Customer.phone == identifier, Customer.email == identifier),
+            Customer.is_registered == True
+        ).first()
+
+        if customer and customer.check_password(password):
+            session['customer_id'] = customer.id
+            flash(f'Welcome back, {customer.name}!', 'success')
+            next_page = request.args.get('next') or request.form.get('next') or url_for('account')
+            return redirect(next_page)
+
+        flash('Invalid phone/email or password.', 'danger')
+        return render_template('auth/login.html')
+
+    return render_template('auth/login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('customer_id', None)
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
+
+
+@app.route('/account')
+@login_required
+def account():
+    customer = Customer.query.get(session['customer_id'])
+    recent_orders = Order.query.filter_by(customer_id=customer.id).order_by(Order.created_at.desc()).limit(5).all()
+    return render_template('account/dashboard.html', customer=customer, recent_orders=recent_orders)
+
+
+@app.route('/account/orders')
+@login_required
+def account_orders():
+    customer = Customer.query.get(session['customer_id'])
+    orders = Order.query.filter_by(customer_id=customer.id).order_by(Order.created_at.desc()).all()
+    return render_template('account/orders.html', customer=customer, orders=orders)
+
+
+@app.route('/create-account', methods=['POST'])
+def create_account_post_checkout():
+    """Handle post-checkout account creation (just password, customer already exists)."""
+    customer_id = request.form.get('customer_id', type=int)
+    password = request.form.get('password', '')
+    confirm = request.form.get('confirm_password', '')
+
+    if not customer_id or not password:
+        flash('Something went wrong. Please try again.', 'danger')
+        return redirect(url_for('index'))
+
+    if password != confirm:
+        flash('Passwords do not match.', 'danger')
+        return redirect(request.referrer or url_for('index'))
+
+    if len(password) < 6:
+        flash('Password must be at least 6 characters.', 'danger')
+        return redirect(request.referrer or url_for('index'))
+
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        flash('Customer not found.', 'danger')
+        return redirect(url_for('index'))
+
+    if customer.is_registered:
+        flash('This account is already registered. Please log in.', 'info')
+        return redirect(url_for('login'))
+
+    existing = Customer.query.filter(
+        Customer.phone == customer.phone, Customer.is_registered == True, Customer.id != customer.id
+    ).first()
+    if existing:
+        flash('An account with this phone number already exists. Please log in.', 'warning')
+        return redirect(url_for('login'))
+
+    customer.set_password(password)
+    customer.is_registered = True
+    db.session.commit()
+
+    session['customer_id'] = customer.id
+    flash('Account created! You can now track your orders and enjoy faster checkout.', 'success')
+    return redirect(url_for('account'))
 
 
 # ─── Admin Dashboard ────────────────────────────────────────────────
@@ -603,20 +784,36 @@ def checkout():
             flash('Please fill in all required fields.', 'danger')
             return redirect(url_for('checkout'))
 
-        customer = Customer.query.filter_by(phone=phone).first()
-        if not customer:
-            customer = Customer(name=name, phone=phone, email=email,
-                              customer_type=customer_type, address=address,
-                              city=city, state=state)
-            db.session.add(customer)
-            db.session.flush()
-        else:
-            customer.name = name
-            if email:
-                customer.email = email
-            customer.address = address
-            customer.city = city
-            customer.state = state
+        logged_in_customer_id = session.get('customer_id')
+        if logged_in_customer_id:
+            customer = Customer.query.get(logged_in_customer_id)
+            if customer and customer.is_registered:
+                customer.name = name
+                customer.phone = phone
+                if email:
+                    customer.email = email
+                customer.address = address
+                customer.city = city
+                customer.state = state
+                customer.customer_type = customer_type
+            else:
+                customer = None
+
+        if not logged_in_customer_id or not customer:
+            customer = Customer.query.filter_by(phone=phone).first()
+            if not customer:
+                customer = Customer(name=name, phone=phone, email=email,
+                                  customer_type=customer_type, address=address,
+                                  city=city, state=state)
+                db.session.add(customer)
+                db.session.flush()
+            else:
+                customer.name = name
+                if email:
+                    customer.email = email
+                customer.address = address
+                customer.city = city
+                customer.state = state
 
         subtotal = 0
         order_items = []
@@ -690,8 +887,14 @@ def checkout():
     delivery_zones = DeliveryZone.query.filter_by(is_active=True).order_by(DeliveryZone.state).all()
     paystack_key = get_setting('paystack_public_key', '')
 
+    checkout_user = None
+    customer_id = session.get('customer_id')
+    if customer_id:
+        checkout_user = Customer.query.get(customer_id)
+
     return render_template('checkout.html', items=items, subtotal=subtotal, tax=tax,
-                         delivery_zones=delivery_zones, paystack_key=paystack_key)
+                         delivery_zones=delivery_zones, paystack_key=paystack_key,
+                         checkout_user=checkout_user)
 
 
 @app.route('/api/delivery-fee')
@@ -791,6 +994,13 @@ def paystack_webhook():
 @app.route('/track', methods=['GET', 'POST'])
 def track_order():
     order = None
+    my_orders = []
+    customer_id = session.get('customer_id')
+    if customer_id:
+        customer = Customer.query.get(customer_id)
+        if customer and customer.is_registered:
+            my_orders = Order.query.filter_by(customer_id=customer.id).order_by(Order.created_at.desc()).limit(10).all()
+
     if request.method == 'POST':
         order_number = request.form.get('order_number', '').strip()
         phone = request.form.get('phone', '').strip()
@@ -801,7 +1011,7 @@ def track_order():
                 flash('Order not found. Please check your order number and phone number.', 'danger')
             elif not order:
                 flash('Order not found.', 'danger')
-    return render_template('track_order.html', order=order)
+    return render_template('track_order.html', order=order, my_orders=my_orders)
 
 
 # ─── Invoice ─────────────────────────────────────────────────────────

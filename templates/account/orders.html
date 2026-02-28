@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}My Orders — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container" style="max-width:900px">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-brand mb-0"><i class="bi bi-bag me-2"></i>My Orders</h2>
+            <a href="/account" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Account</a>
+        </div>
+
+        {% if orders %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Order #</th>
+                                <th class="small">Date</th>
+                                <th class="small">Items</th>
+                                <th class="small">Total</th>
+                                <th class="small">Status</th>
+                                <th class="small">Payment</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in orders %}
+                            <tr>
+                                <td class="small fw-bold">{{ o.order_number }}</td>
+                                <td class="small">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                                <td class="small">{{ o.items|length }} item{{ 's' if o.items|length != 1 else '' }}</td>
+                                <td class="small fw-bold">{{ o.total|naira }}</td>
+                                <td>
+                                    <span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% elif o.status == 'processing' %}bg-primary{% else %}bg-warning text-dark{% endif %} badge-status">
+                                        {{ o.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %} badge-status">
+                                        {{ o.payment_status|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/order/{{ o.order_number }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-bag fs-1 text-muted mb-3 d-block"></i>
+                <h5 class="text-muted">No orders yet</h5>
+                <p class="text-muted mb-3">You haven't placed any orders. Start shopping to see your orders here.</p>
+                <a href="/shop" class="btn btn-brand"><i class="bi bi-shop me-2"></i>Start Shopping</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

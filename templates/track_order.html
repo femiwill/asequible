@@ -6,6 +6,40 @@
     <div class="container" style="max-width:700px">
         <h2 class="fw-bold text-brand text-center mb-4"><i class="bi bi-truck me-2"></i>Track Your Order</h2>
 
+        {% if my_orders %}
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white"><strong><i class="bi bi-bag me-2"></i>Your Recent Orders</strong></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small">Order #</th>
+                                <th class="small">Date</th>
+                                <th class="small">Total</th>
+                                <th class="small">Status</th>
+                                <th class="small">Payment</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in my_orders %}
+                            <tr>
+                                <td class="small fw-bold">{{ o.order_number }}</td>
+                                <td class="small">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                                <td class="small">{{ o.total|naira }}</td>
+                                <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %} badge-status">{{ o.status|capitalize }}</span></td>
+                                <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %} badge-status">{{ o.payment_status|capitalize }}</span></td>
+                                <td><a href="/order/{{ o.order_number }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <form method="POST">

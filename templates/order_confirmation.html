@@ -128,8 +128,37 @@
 
         {% endif %}
 
+        {% if not current_user and not order.customer.is_registered %}
+        <!-- Post-checkout account creation prompt -->
+        <div class="card border-0 shadow-sm mb-4 border-start border-4 border-success">
+            <div class="card-body">
+                <h5 class="fw-bold mb-2"><i class="bi bi-person-plus me-2 text-success"></i>Create an Account</h5>
+                <p class="text-muted small mb-3">Save your details for faster checkout next time and easily track all your orders. Just set a password — we already have your info from this order.</p>
+                <form method="POST" action="/create-account">
+                    <input type="hidden" name="customer_id" value="{{ order.customer.id }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control" minlength="6" required placeholder="At least 6 characters">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Confirm Password</label>
+                            <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check-circle me-2"></i>Create Account</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="text-center">
             <div class="d-flex gap-3 justify-content-center flex-wrap">
+                {% if current_user %}
+                <a href="/account/orders" class="btn btn-outline-primary"><i class="bi bi-bag me-2"></i>My Orders</a>
+                {% endif %}
                 <a href="/track" class="btn btn-outline-primary"><i class="bi bi-truck me-2"></i>Track Your Order</a>
                 <a href="/invoice/{{ order.order_number }}" target="_blank" class="btn btn-outline-secondary"><i class="bi bi-printer me-2"></i>Print Invoice</a>
                 <a href="/shop" class="btn btn-outline-secondary"><i class="bi bi-shop me-2"></i>Continue Shopping</a>

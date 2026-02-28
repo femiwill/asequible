@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Login — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container" style="max-width:450px">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-brand"><i class="bi bi-box-arrow-in-right me-2"></i>Log In</h2>
+            <p class="text-muted">Welcome back to {{ site_name }}.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% if request.args.get('next') %}
+                    <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Phone Number or Email *</label>
+                        <input type="text" name="identifier" class="form-control" required placeholder="Enter your phone or email" value="{{ request.form.get('identifier', '') }}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Password *</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-brand btn-lg w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 small text-muted">
+            Don't have an account? <a href="/register" class="text-brand fw-semibold">Register</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

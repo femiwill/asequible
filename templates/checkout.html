@@ -23,26 +23,31 @@
                 <div class="col-lg-7">
                     <!-- Customer Info -->
                     <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white"><strong><i class="bi bi-person me-2"></i>Your Information</strong></div>
+                        <div class="card-header bg-white">
+                            <strong><i class="bi bi-person me-2"></i>Your Information</strong>
+                            {% if checkout_user and checkout_user.is_registered %}
+                            <span class="badge bg-success float-end"><i class="bi bi-check-circle me-1"></i>Logged in as {{ checkout_user.name }}</span>
+                            {% endif %}
+                        </div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">Full Name *</label>
-                                    <input type="text" name="name" class="form-control" required>
+                                    <input type="text" name="name" class="form-control" value="{{ checkout_user.name if checkout_user else '' }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">Phone Number *</label>
-                                    <input type="tel" name="phone" class="form-control" placeholder="+234..." required>
+                                    <input type="tel" name="phone" class="form-control" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">Email</label>
-                                    <input type="email" name="email" class="form-control">
+                                    <input type="email" name="email" class="form-control" value="{{ checkout_user.email if checkout_user else '' }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">Customer Type</label>
                                     <select name="customer_type" class="form-select">
-                                        <option value="retail">Retail</option>
-                                        <option value="wholesale">Wholesale</option>
+                                        <option value="retail" {{ 'selected' if not checkout_user or checkout_user.customer_type == 'retail' else '' }}>Retail</option>
+                                        <option value="wholesale" {{ 'selected' if checkout_user and checkout_user.customer_type == 'wholesale' else '' }}>Wholesale</option>
                                     </select>
                                 </div>
                             </div>
@@ -56,18 +61,18 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label small fw-semibold">Address *</label>
-                                    <textarea name="address" class="form-control" rows="2" required></textarea>
+                                    <textarea name="address" class="form-control" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">City</label>
-                                    <input type="text" name="city" class="form-control">
+                                    <input type="text" name="city" class="form-control" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-semibold">State *</label>
                                     <select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()">
                                         <option value="">Select State</option>
                                         {% for zone in delivery_zones %}
-                                        <option value="{{ zone.state }}">{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>
+                                        <option value="{{ zone.state }}" {{ 'selected' if checkout_user and checkout_user.state == zone.state else '' }}>{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -167,5 +172,7 @@ function updateDeliveryFee() {
         document.getElementById('totalDisplay').textContent = '₦' + total.toLocaleString('en', {minimumFractionDigits: 2});
     });
 }
+// Auto-calculate if state is pre-selected
+if (document.getElementById('stateSelect').value) { updateDeliveryFee(); }
 </script>
 {% endblock %}
