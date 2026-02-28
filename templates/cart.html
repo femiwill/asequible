@@ -6,35 +6,35 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item active">Cart</li>
             </ol>
         </nav>
     </div>
 </section>
 
-<section class="py-5">
+<section class="py-5" style="background:var(--warm-white)">
     <div class="container">
-        <h2 class="fw-bold text-brand mb-4"><i class="bi bi-cart3 me-2"></i>Shopping Cart</h2>
+        <h2 class="fw-bold mb-4"><i class="bi bi-cart3 me-2"></i>Shopping Cart</h2>
 
         {% if items %}
         <div class="row g-4">
             <div class="col-lg-8">
                 {% for item in items %}
-                <div class="card border-0 shadow-sm mb-3" id="cart-item-{{ item.variant_id }}" style="transition: opacity 0.3s ease, transform 0.3s ease;">
+                <div class="card border-0 mb-3 card-elevated" id="cart-item-{{ item.variant_id }}" style="transition: opacity 0.3s ease, transform 0.3s ease;">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-2 text-center mb-2 mb-md-0">
                                 {% if item.image_url %}
-                                <img src="{{ item.image_url }}" class="rounded" width="80" height="80" style="object-fit:cover">
+                                <img src="{{ item.image_url }}" class="rounded" width="80" height="80" style="object-fit:cover;border-radius:var(--radius-sm)">
                                 {% else %}
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:80px;height:80px;margin:0 auto"><i class="bi bi-image text-muted"></i></div>
+                                <div class="rounded d-flex align-items-center justify-content-center" style="width:80px;height:80px;margin:0 auto;background:var(--cream)"><i class="bi bi-image" style="color:var(--gold-light)"></i></div>
                                 {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <h6 class="fw-bold mb-1">{{ item.product_name }}</h6>
-                                <span class="badge bg-light text-dark">{{ item.size }}</span>
-                                <div class="small text-muted mt-1 price-display">{{ item.price|naira }} each</div>
+                                <h6 class="fw-bold mb-1" style="color:var(--text-dark)">{{ item.product_name }}</h6>
+                                <span class="badge" style="background:var(--cream);color:var(--text-dark)">{{ item.size }}</span>
+                                <div class="small mt-1 price-display" style="font-size:0.85rem">{{ item.price|naira }} each</div>
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group input-group-sm" style="max-width:130px">
@@ -56,35 +56,35 @@
                 </div>
                 {% endfor %}
 
-                <a href="/shop" class="btn btn-outline-primary"><i class="bi bi-arrow-left me-2"></i>Continue Shopping</a>
+                <a href="/shop" class="btn btn-brand btn-sm"><i class="bi bi-arrow-left me-2"></i>Continue Shopping</a>
             </div>
 
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm card-elevated" style="border-radius:var(--radius-lg)">
-                    <div class="card-body">
-                        <h5 class="fw-bold mb-3">Order Summary</h5>
+                <div class="card border-0 card-elevated" style="border-radius:var(--radius-lg)">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3" style="color:var(--text-dark)">Order Summary</h5>
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal</span>
+                            <span style="color:var(--text-muted)">Subtotal</span>
                             <strong class="price-display" id="cart-subtotal">{{ subtotal|naira }}</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span>VAT (7.5%)</span>
+                            <span style="color:var(--text-muted)">VAT (7.5%)</span>
                             <span class="price-display" id="cart-tax">{{ tax|naira }}</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2 text-muted small">
-                            <span>Delivery</span>
-                            <span>Calculated at checkout</span>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color:var(--text-muted);font-size:0.85rem">Delivery</span>
+                            <span style="color:var(--text-muted);font-size:0.85rem">Calculated at checkout</span>
                         </div>
-                        <hr>
+                        <hr style="border-color:var(--border-warm)">
                         <div class="d-flex justify-content-between mb-3">
-                            <strong>Estimated Total</strong>
-                            <strong class="text-brand h5 mb-0 price-display" id="cart-total">{{ (subtotal + tax)|naira }}</strong>
+                            <strong style="color:var(--text-dark)">Estimated Total</strong>
+                            <strong class="h5 mb-0 price-display" id="cart-total">{{ (subtotal + tax)|naira }}</strong>
                         </div>
                         <a href="/checkout" class="btn btn-gold btn-lg w-100">
                             <i class="bi bi-lock me-2"></i>Proceed to Checkout
                         </a>
                         <div class="text-center mt-3">
-                            <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Secure checkout with Paystack</small>
+                            <small style="color:var(--text-muted)"><i class="bi bi-shield-lock me-1"></i>Secure checkout with Paystack</small>
                         </div>
                     </div>
                 </div>
@@ -120,31 +120,21 @@ function setCartQty(variantId) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({variant_id: variantId, quantity: qty})
     }).then(function(r) { return r.json(); }).then(function(data) {
-        if (data.success) {
-            updateCartBadge(data.cart_count);
-            location.reload();
-        }
+        if (data.success) { updateCartBadge(data.cart_count); location.reload(); }
     });
 }
 
 function removeFromCart(variantId) {
     var el = document.getElementById('cart-item-' + variantId);
-    // Animate out
     el.style.opacity = '0';
-    el.style.transform = 'translateX(-30px)';
-
+    el.style.transform = 'translateX(-20px)';
     setTimeout(function() {
         fetch('/api/cart/remove', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({variant_id: variantId})
         }).then(function(r) { return r.json(); }).then(function(data) {
-            if (data.success) {
-                el.remove();
-                updateCartBadge(data.cart_count);
-                if (data.cart_count === 0) location.reload();
-                else location.reload();
-            }
+            if (data.success) { el.remove(); updateCartBadge(data.cart_count); if (data.cart_count === 0) location.reload(); else location.reload(); }
         });
     }, 300);
 }

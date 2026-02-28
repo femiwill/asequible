@@ -19,11 +19,12 @@
 <style>
     .variant-hover-card {
         border-radius: var(--radius-md) !important;
-        border: 1.5px solid #e9ecef !important;
+        border: 1.5px solid var(--border-warm) !important;
+        background: #fff;
     }
     .variant-hover-card:hover {
-        border-color: var(--gold) !important;
-        box-shadow: 0 4px 12px rgba(233,196,106,0.15);
+        border-color: var(--gold-light) !important;
+        background: var(--cream);
         transform: translateY(-2px);
     }
 </style>
@@ -34,49 +35,49 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item active">Shop</li>
             </ol>
         </nav>
     </div>
 </section>
 
-<section class="py-5">
+<section class="py-5" style="background:var(--warm-white)">
     <div class="container">
         <div class="text-center mb-5">
             <span class="section-label">Browse Our Selection</span>
-            <h1 class="fw-bold text-brand gold-underline">Our Rice Collection</h1>
-            <p class="text-muted mt-3">Premium quality rice available in multiple sizes</p>
+            <h1 class="fw-bold gold-underline">Our Rice Collection</h1>
+            <p class="mt-3">Premium quality rice available in multiple sizes</p>
         </div>
 
         {% for product in products %}
-        <div class="card border-0 shadow-sm mb-5 overflow-hidden reveal">
+        <div class="card border-0 mb-5 overflow-hidden card-elevated reveal">
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-4 text-center mb-3 mb-md-0">
                         {% if product.image_url %}
-                        <img src="{{ product.image_url }}" class="img-fluid rounded" style="max-height:250px;object-fit:cover" alt="{{ product.name }}">
+                        <img src="{{ product.image_url }}" class="img-fluid rounded" style="max-height:250px;object-fit:cover;border-radius:var(--radius-md)" alt="{{ product.name }}">
                         {% else %}
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:250px">
-                            <i class="bi bi-image display-1 text-muted"></i>
+                        <div class="rounded d-flex align-items-center justify-content-center" style="height:250px;background:var(--cream);border-radius:var(--radius-md)">
+                            <i class="bi bi-image display-1" style="color:var(--gold-light)"></i>
                         </div>
                         {% endif %}
                     </div>
                     <div class="col-md-8">
                         <h3 class="fw-bold mb-2">
-                            <a href="/product/{{ product.slug }}" class="text-decoration-none text-brand">{{ product.name }}</a>
+                            <a href="/product/{{ product.slug }}" class="text-decoration-none" style="color:var(--brown)">{{ product.name }}</a>
                         </h3>
-                        <p class="text-muted mb-3">{{ product.description[:150] }}{% if product.description|length > 150 %}...{% endif %}</p>
+                        <p class="mb-3">{{ product.description[:150] }}{% if product.description|length > 150 %}...{% endif %}</p>
 
                         <div class="row g-3">
                             {% for variant in product.variants if variant.is_active %}
                             <div class="col-6 col-lg-3">
                                 <div class="card h-100 variant-hover-card {% if not variant.in_stock %}opacity-50{% endif %}">
                                     <div class="card-body p-3 text-center">
-                                        <div class="fw-bold text-brand mb-1">{{ variant.size }}</div>
+                                        <div class="fw-bold mb-1" style="color:var(--brown)">{{ variant.size }}</div>
                                         <div class="h5 fw-bold mb-1 price-display">{{ variant.price|naira }}</div>
                                         {% if variant.wholesale_price %}
-                                        <div class="small text-muted mb-2">
+                                        <div class="small mb-2" style="color:var(--text-muted)">
                                             Wholesale: {{ variant.wholesale_price|naira }}
                                             <br>(min {{ variant.wholesale_min_qty }} units)
                                         </div>
@@ -97,7 +98,7 @@
                             {% endfor %}
                         </div>
 
-                        <a href="/product/{{ product.slug }}" class="btn btn-outline-primary btn-sm mt-3">View Full Details <i class="bi bi-arrow-right ms-1"></i></a>
+                        <a href="/product/{{ product.slug }}" class="btn btn-brand btn-sm mt-3">View Full Details <i class="bi bi-arrow-right ms-1"></i></a>
                     </div>
                 </div>
             </div>

@@ -2,19 +2,19 @@
 {% block title %}My Orders — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="py-5">
+<section class="py-5" style="background:var(--warm-white)">
     <div class="container" style="max-width:900px">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-brand mb-0"><i class="bi bi-bag me-2"></i>My Orders</h2>
+            <h2 class="fw-bold mb-0"><i class="bi bi-bag me-2"></i>My Orders</h2>
             <a href="/account" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Account</a>
         </div>
 
         {% if orders %}
-        <div class="card border-0 shadow-sm card-elevated reveal">
+        <div class="card border-0 card-elevated reveal">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
                                 <th>Order #</th>
                                 <th>Date</th>
@@ -43,7 +43,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="/order/{{ o.order_number }}" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="/order/{{ o.order_number }}" class="btn btn-sm btn-brand">View</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -53,7 +53,7 @@
             </div>
         </div>
         {% else %}
-        <div class="card border-0 shadow-sm card-elevated">
+        <div class="card border-0 card-elevated">
             <div class="empty-state">
                 <i class="bi bi-bag"></i>
                 <h4>No orders yet</h4>

@@ -6,7 +6,6 @@
     .checkout-progress {
         display: flex;
         justify-content: center;
-        gap: 0;
         margin-bottom: 2rem;
     }
     .checkout-step {
@@ -15,31 +14,26 @@
         gap: 0.5rem;
         font-size: 0.85rem;
         font-weight: 600;
-        color: #aaa;
+        color: #bbb;
     }
-    .checkout-step.done { color: #28a745; }
-    .checkout-step.active { color: var(--blue); }
+    .checkout-step.done { color: #38a169; }
+    .checkout-step.active { color: var(--brown); }
     .checkout-step .step-dot {
-        width: 32px; height: 32px;
+        width: 30px; height: 30px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        background: #e9ecef;
-        color: #aaa;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.78rem; font-weight: 700;
+        background: var(--cream-dark); color: #bbb;
     }
-    .checkout-step.done .step-dot { background: #28a745; color: #fff; }
-    .checkout-step.active .step-dot { background: var(--blue); color: #fff; }
+    .checkout-step.done .step-dot { background: #38a169; color: #fff; }
+    .checkout-step.active .step-dot { background: var(--brown); color: #fff; }
     .checkout-connector {
-        width: 50px;
-        height: 2px;
-        background: #e9ecef;
+        width: 40px; height: 1.5px;
+        background: var(--cream-dark);
         align-self: center;
         margin: 0 0.5rem;
     }
-    .checkout-connector.done { background: #28a745; }
+    .checkout-connector.done { background: #38a169; }
 </style>
 {% endblock %}
 
@@ -48,17 +42,16 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="/" class="text-brand">Home</a></li>
-                <li class="breadcrumb-item"><a href="/cart" class="text-brand">Cart</a></li>
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
                 <li class="breadcrumb-item active">Checkout</li>
             </ol>
         </nav>
     </div>
 </section>
 
-<section class="py-5">
+<section class="py-5" style="background:var(--warm-white)">
     <div class="container">
-        <!-- Progress Bar -->
         <div class="checkout-progress">
             <div class="checkout-step done">
                 <span class="step-dot"><i class="bi bi-check-lg"></i></span>
@@ -76,14 +69,13 @@
             </div>
         </div>
 
-        <h2 class="fw-bold text-brand mb-4"><i class="bi bi-lock me-2"></i>Checkout</h2>
+        <h2 class="fw-bold mb-4"><i class="bi bi-lock me-2"></i>Checkout</h2>
 
         <form method="POST" id="checkoutForm">
             <div class="row g-4">
                 <div class="col-lg-7">
-                    <!-- Customer Info -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0 pt-3">
+                    <div class="card border-0 card-elevated mb-4">
+                        <div class="card-header pt-3">
                             <strong><i class="bi bi-person me-2"></i>Your Information</strong>
                             {% if checkout_user and checkout_user.is_registered %}
                             <span class="badge bg-success float-end"><i class="bi bi-check-circle me-1"></i>Logged in as {{ checkout_user.name }}</span>
@@ -114,9 +106,8 @@
                         </div>
                     </div>
 
-                    <!-- Delivery Address -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0 pt-3"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
+                    <div class="card border-0 card-elevated mb-4">
+                        <div class="card-header pt-3"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-12">
@@ -140,47 +131,45 @@
                         </div>
                     </div>
 
-                    <!-- Payment Method -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0 pt-3"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
+                    <div class="card border-0 card-elevated">
+                        <div class="card-header pt-3"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
                         <div class="card-body">
                             <div class="form-check mb-3 p-3 border rounded">
                                 <input class="form-check-input" type="radio" name="payment_method" value="paystack" id="payPaystack" checked>
                                 <label class="form-check-label fw-semibold" for="payPaystack">
                                     <i class="bi bi-credit-card me-2"></i>Pay Online (Paystack)
-                                    <div class="small text-muted fw-normal">Card, bank transfer, USSD</div>
+                                    <div class="small fw-normal" style="color:var(--text-muted)">Card, bank transfer, USSD</div>
                                 </label>
                             </div>
                             <div class="form-check mb-3 p-3 border rounded">
                                 <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer" id="payBank">
                                 <label class="form-check-label fw-semibold" for="payBank">
                                     <i class="bi bi-bank me-2"></i>Bank Transfer
-                                    <div class="small text-muted fw-normal">Transfer to our bank account</div>
+                                    <div class="small fw-normal" style="color:var(--text-muted)">Transfer to our bank account</div>
                                 </label>
                             </div>
                             <div class="form-check p-3 border rounded">
                                 <input class="form-check-input" type="radio" name="payment_method" value="cash_on_delivery" id="payCOD">
                                 <label class="form-check-label fw-semibold" for="payCOD">
                                     <i class="bi bi-cash me-2"></i>Cash on Delivery
-                                    <div class="small text-muted fw-normal">Pay when your order arrives</div>
+                                    <div class="small fw-normal" style="color:var(--text-muted)">Pay when your order arrives</div>
                                 </label>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Order Summary -->
                 <div class="col-lg-5">
-                    <div class="card border-0 shadow-sm card-elevated sticky-top" style="top:80px; border-radius:var(--radius-lg)">
-                        <div class="card-header bg-white border-0 pt-3"><strong>Order Summary</strong></div>
+                    <div class="card border-0 card-elevated sticky-top" style="top:80px;border-radius:var(--radius-lg)">
+                        <div class="card-header pt-3"><strong>Order Summary</strong></div>
                         <div class="card-body">
                             {% for item in items %}
                             <div class="d-flex justify-content-between mb-2">
-                                <span class="small">{{ item.product_name }} ({{ item.size }}) x{{ item.qty }}</span>
+                                <span class="small" style="color:var(--text-muted)">{{ item.product_name }} ({{ item.size }}) x{{ item.qty }}</span>
                                 <strong class="small price-display">{{ item.line_total|naira }}</strong>
                             </div>
                             {% endfor %}
-                            <hr>
+                            <hr style="border-color:var(--border-warm)">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal</span>
                                 <strong class="price-display">{{ subtotal|naira }}</strong>
@@ -193,10 +182,10 @@
                                 <span>Delivery Fee</span>
                                 <span class="price-display" id="deliveryFeeDisplay">Select state</span>
                             </div>
-                            <hr>
+                            <hr style="border-color:var(--border-warm)">
                             <div class="d-flex justify-content-between mb-3">
                                 <strong class="h5 mb-0">Total</strong>
-                                <strong class="h5 mb-0 text-brand price-display" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
+                                <strong class="h5 mb-0 price-display" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
                             </div>
 
                             <button type="submit" class="btn btn-gold btn-lg w-100" id="placeOrderBtn">
@@ -204,7 +193,7 @@
                             </button>
 
                             <div class="text-center mt-3">
-                                <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Your information is secure</small>
+                                <small style="color:var(--text-muted)"><i class="bi bi-shield-lock me-1"></i>Your information is secure</small>
                             </div>
                         </div>
                     </div>
@@ -223,7 +212,6 @@ var tax = {{ tax }};
 function updateDeliveryFee() {
     var state = document.getElementById('stateSelect').value;
     if (!state) return;
-
     fetch('/api/delivery-fee?state=' + encodeURIComponent(state))
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -232,10 +220,8 @@ function updateDeliveryFee() {
         document.getElementById('totalDisplay').textContent = '\u20A6' + total.toLocaleString('en', {minimumFractionDigits: 2});
     });
 }
-// Auto-calculate if state is pre-selected
 if (document.getElementById('stateSelect').value) { updateDeliveryFee(); }
 
-// Form submit loading state
 document.getElementById('checkoutForm').addEventListener('submit', function() {
     var btn = document.getElementById('placeOrderBtn');
     btn.classList.add('btn-loading');

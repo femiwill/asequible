@@ -2,14 +2,14 @@
 {% block title %}Register — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="py-5">
+<section class="py-5" style="background:var(--cream)">
     <div class="container" style="max-width:500px">
         <div class="text-center mb-4 reveal">
-            <h2 class="fw-bold text-brand"><i class="bi bi-person-plus me-2"></i>Create Account</h2>
-            <p class="text-muted">Join {{ site_name }} for faster checkout and order tracking.</p>
+            <h2 class="fw-bold"><i class="bi bi-person-plus me-2"></i>Create Account</h2>
+            <p>Join {{ site_name }} for faster checkout and order tracking.</p>
         </div>
 
-        <div class="card border-0 shadow-sm card-elevated reveal">
+        <div class="card border-0 card-elevated reveal">
             <div class="card-body p-4">
                 <form method="POST">
                     <div class="mb-3">
@@ -39,8 +39,8 @@
             </div>
         </div>
 
-        <p class="text-center mt-3 small text-muted">
-            Already have an account? <a href="/login" class="text-brand fw-semibold">Log in</a>
+        <p class="text-center mt-3 small" style="color:var(--text-muted)">
+            Already have an account? <a href="/login" class="fw-semibold" style="color:var(--brown)">Log in</a>
         </p>
     </div>
 </section>

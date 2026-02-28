@@ -20,38 +20,38 @@
     .hero-glow {
         position: absolute;
         border-radius: 50%;
-        filter: blur(80px);
-        opacity: 0.15;
-        animation: heroGlow 6s ease-in-out infinite alternate;
+        filter: blur(100px);
+        opacity: 0.1;
+        animation: heroGlow 8s ease-in-out infinite alternate;
     }
     .hero-glow-1 {
-        width: 400px; height: 400px;
+        width: 350px; height: 350px;
         background: var(--gold);
-        top: -100px; right: -50px;
+        top: -80px; right: -40px;
     }
     .hero-glow-2 {
-        width: 300px; height: 300px;
+        width: 250px; height: 250px;
         background: var(--gold-light);
-        bottom: -80px; left: -30px;
-        animation-delay: 3s;
+        bottom: -60px; left: -20px;
+        animation-delay: 4s;
     }
     @keyframes heroGlow {
         0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(20px, -15px) scale(1.15); }
+        100% { transform: translate(15px, -10px) scale(1.1); }
     }
     .trust-icon-bg {
-        width: 56px; height: 56px;
+        width: 52px; height: 52px;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(233,196,106,0.12), rgba(233,196,106,0.04));
+        background: var(--gold-glow);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 0.75rem;
     }
     .step-circle {
-        width: 72px; height: 72px;
+        width: 68px; height: 68px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+        background: var(--brown);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -60,17 +60,36 @@
     }
     .step-number {
         position: absolute;
-        top: -6px; right: -6px;
-        width: 26px; height: 26px;
+        top: -5px; right: -5px;
+        width: 24px; height: 24px;
         border-radius: 50%;
         background: var(--gold);
-        color: var(--blue);
+        color: var(--brown);
         font-weight: 800;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .featured-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+    }
+    .featured-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+    .variant-chip {
+        border: 1.5px solid var(--border-warm);
+        border-radius: var(--radius-md);
+        padding: 0.6rem;
+        text-align: center;
+        background: #fff;
+    }
+    .variant-chip:hover {
+        border-color: var(--gold-light);
+        background: var(--cream);
     }
 </style>
 {% endblock %}
@@ -82,8 +101,8 @@
     <div class="hero-glow hero-glow-2"></div>
     <div class="container position-relative" style="z-index:1">
         <span class="section-label" style="color:var(--gold-light)"><i class="bi bi-grain me-1"></i> Premium Rice Distributor</span>
-        <h1 class="display-4 fw-bold mb-3" style="max-width:700px;margin:0 auto">Premium Quality Rice,<br>Delivered to Your Door</h1>
-        <p class="lead mb-4 opacity-75 mx-auto" style="max-width:600px">
+        <h1 class="display-4 fw-bold mb-3" style="max-width:680px;margin:0 auto;color:#fff">Premium Quality Rice,<br>Delivered to Your Door</h1>
+        <p class="lead mb-4 mx-auto" style="max-width:560px;color:rgba(255,255,255,0.65)">
             {{ site_tagline }}. Serving retail and wholesale customers across Nigeria with the finest locally sourced rice.
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
@@ -96,29 +115,29 @@
 </section>
 
 <!-- Trust Badges -->
-<section class="py-4 bg-white border-bottom">
+<section class="py-4 bg-cream" style="border-bottom:1px solid var(--border-warm)">
     <div class="container">
         <div class="row text-center g-3 reveal-stagger reveal">
             <div class="col-6 col-md-4">
                 <div class="trust-icon-bg">
-                    <i class="bi bi-shield-check fs-4 text-brand"></i>
+                    <i class="bi bi-shield-check fs-4" style="color:var(--brown)"></i>
                 </div>
-                <strong class="small d-block">Quality Guaranteed</strong>
-                <div class="text-muted" style="font-size:0.75rem">Premium parboiled rice</div>
+                <strong class="small d-block" style="color:var(--text-dark)">Quality Guaranteed</strong>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Premium parboiled rice</div>
             </div>
             <div class="col-6 col-md-4">
                 <div class="trust-icon-bg">
-                    <i class="bi bi-cash-stack fs-4 text-brand"></i>
+                    <i class="bi bi-cash-stack fs-4" style="color:var(--brown)"></i>
                 </div>
-                <strong class="small d-block">Wholesale Prices</strong>
-                <div class="text-muted" style="font-size:0.75rem">Bulk discounts available</div>
+                <strong class="small d-block" style="color:var(--text-dark)">Wholesale Prices</strong>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Bulk discounts available</div>
             </div>
             <div class="col-6 col-md-4">
                 <div class="trust-icon-bg">
-                    <i class="bi bi-headset fs-4 text-brand"></i>
+                    <i class="bi bi-headset fs-4" style="color:var(--brown)"></i>
                 </div>
-                <strong class="small d-block">24/7 Support</strong>
-                <div class="text-muted" style="font-size:0.75rem">WhatsApp & phone</div>
+                <strong class="small d-block" style="color:var(--text-dark)">24/7 Support</strong>
+                <div style="font-size:0.75rem;color:var(--text-muted)">WhatsApp & phone</div>
             </div>
         </div>
     </div>
@@ -126,41 +145,41 @@
 
 <!-- Featured Products -->
 {% if featured %}
-<section class="py-5">
+<section class="py-5" style="background:var(--warm-white)">
     <div class="container">
         <div class="text-center mb-5">
             <span class="section-label">What We Offer</span>
-            <h2 class="fw-bold text-brand gold-underline">Our Products</h2>
-            <p class="text-muted mt-3">Premium quality rice in sizes for every need</p>
+            <h2 class="fw-bold gold-underline">Our Products</h2>
+            <p class="mt-3">Premium quality rice in sizes for every need</p>
         </div>
         <div class="row g-4">
             {% for product in featured %}
             <div class="col-12 reveal">
-                <div class="card border-0 shadow-sm overflow-hidden">
+                <div class="featured-card">
                     <div class="row g-0">
                         <div class="col-md-5">
                             {% if product.image_url %}
                             <img src="{{ product.image_url }}" class="w-100 h-100" style="object-fit:cover;min-height:300px" alt="{{ product.name }}">
                             {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center h-100" style="min-height:300px">
-                                <i class="bi bi-image display-1 text-muted"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100" style="min-height:300px;background:var(--cream)">
+                                <i class="bi bi-image display-1" style="color:var(--gold-light)"></i>
                             </div>
                             {% endif %}
                         </div>
                         <div class="col-md-7 d-flex align-items-center">
-                            <div class="p-4">
-                                <span class="badge bg-gold text-dark mb-2">Featured</span>
+                            <div class="p-4 p-md-5">
+                                <span class="badge badge-gold mb-2">Featured</span>
                                 <h3 class="fw-bold">{{ product.name }}</h3>
-                                <p class="text-muted">{{ product.description[:200] }}{% if product.description|length > 200 %}...{% endif %}</p>
+                                <p>{{ product.description[:200] }}{% if product.description|length > 200 %}...{% endif %}</p>
 
                                 <div class="row g-2 mb-4">
                                     {% for variant in product.variants if variant.is_active %}
                                     <div class="col-6 col-lg-3">
-                                        <div class="border rounded p-2 text-center {% if not variant.in_stock %}opacity-50{% endif %}">
-                                            <div class="fw-bold small">{{ variant.size }}</div>
-                                            <div class="text-brand fw-bold price-display">{{ variant.price|naira }}</div>
+                                        <div class="variant-chip {% if not variant.in_stock %}opacity-50{% endif %}">
+                                            <div class="fw-bold small" style="color:var(--text-dark)">{{ variant.size }}</div>
+                                            <div class="price-display">{{ variant.price|naira }}</div>
                                             {% if variant.wholesale_price %}
-                                            <div class="text-muted" style="font-size:0.7rem">Wholesale: {{ variant.wholesale_price|naira }}</div>
+                                            <div style="font-size:0.7rem;color:var(--text-muted)">Wholesale: {{ variant.wholesale_price|naira }}</div>
                                             {% endif %}
                                             {% if variant.in_stock %}
                                             <button class="btn btn-sm btn-gold mt-1 w-100" onclick="addToCart({{ variant.id }}, 1, this)">Add to Cart</button>
@@ -185,11 +204,11 @@
 {% endif %}
 
 <!-- CTA -->
-<section class="py-5 bg-brand-gradient text-white text-center">
+<section class="py-5 bg-warm text-white text-center">
     <div class="container reveal">
         <span class="section-label" style="color:var(--gold-light)">Bulk Orders</span>
-        <h3 class="fw-bold mb-3">Need a Large Order?</h3>
-        <p class="opacity-75 mb-4 mx-auto" style="max-width:500px">We offer competitive wholesale prices for bulk purchases. Contact us for a custom quote.</p>
+        <h3 class="fw-bold mb-3" style="color:#fff">Need a Large Order?</h3>
+        <p class="mb-4 mx-auto" style="max-width:480px;color:rgba(255,255,255,0.6)">We offer competitive wholesale prices for bulk purchases. Contact us for a custom quote.</p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ 'Hello! I am interested in wholesale pricing.'|urlencode }}" target="_blank" class="btn btn-gold btn-lg">
                 <i class="bi bi-whatsapp me-2"></i>Chat for Wholesale Prices
@@ -200,11 +219,11 @@
 </section>
 
 <!-- How it Works -->
-<section class="py-5 bg-white">
+<section class="py-5" style="background:var(--cream)">
     <div class="container">
         <div class="text-center mb-5">
             <span class="section-label">Simple Process</span>
-            <h3 class="fw-bold text-brand gold-underline">How It Works</h3>
+            <h3 class="fw-bold gold-underline">How It Works</h3>
         </div>
         <div class="row g-4 text-center reveal-stagger reveal">
             <div class="col-md-4">
@@ -213,7 +232,7 @@
                     <span class="step-number">1</span>
                 </div>
                 <h5 class="fw-bold">Choose Your Rice</h5>
-                <p class="text-muted small">Select your preferred size and quantity from our product range.</p>
+                <p class="small">Select your preferred size and quantity from our product range.</p>
             </div>
             <div class="col-md-4">
                 <div class="step-circle">
@@ -221,7 +240,7 @@
                     <span class="step-number">2</span>
                 </div>
                 <h5 class="fw-bold">Pay Securely</h5>
-                <p class="text-muted small">Pay online with Paystack, bank transfer, or cash on delivery.</p>
+                <p class="small">Pay online with Paystack, bank transfer, or cash on delivery.</p>
             </div>
             <div class="col-md-4">
                 <div class="step-circle">
@@ -229,7 +248,7 @@
                     <span class="step-number">3</span>
                 </div>
                 <h5 class="fw-bold">Get Delivered</h5>
-                <p class="text-muted small">We deliver to your doorstep anywhere in Nigeria.</p>
+                <p class="small">We deliver to your doorstep anywhere in Nigeria.</p>
             </div>
         </div>
     </div>
