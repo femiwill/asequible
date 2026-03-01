@@ -4,7 +4,6 @@ import hmac
 import hashlib
 import csv
 import io
-import time
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -13,8 +12,9 @@ from flask import (
     session, jsonify, abort, make_response, Response
 )
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
 import requests
+import cloudinary
+import cloudinary.uploader
 
 from models import db, Product, ProductVariant, Customer, Order, OrderItem, Payment, InventoryLog, Setting, DeliveryZone
 from helpers import get_setting, format_naira, generate_order_number, nigerian_states_list, calculate_tax, get_delivery_fee
@@ -27,13 +27,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Cloudinary config (set CLOUDINARY_URL env var: cloudinary://key:secret@cloud_name)
+cloudinary.config(secure=True)
+
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def upload_image(file):
+    """Upload an image to Cloudinary and return the secure URL."""
+    if not file or not file.filename:
+        return None
+    ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_EXTENSIONS:
+        return None
+    result = cloudinary.uploader.upload(file, folder="products")
+    return result['secure_url']
 
 
 with app.app_context():
@@ -324,10 +332,9 @@ def admin_product_new():
 
         image_url = request.form.get('image_url', '')
         file = request.files.get('image')
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"{int(time.time())}_{file.filename}")
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            image_url = f'/static/uploads/{filename}'
+        uploaded_url = upload_image(file)
+        if uploaded_url:
+            image_url = uploaded_url
 
         product = Product(
             name=name, slug=slug,
@@ -381,10 +388,9 @@ def admin_product_edit(id):
         product.category = request.form.get('category', 'rice')
 
         file = request.files.get('image')
-        if file and file.filename and allowed_file(file.filename):
-            filename = secure_filename(f"{int(time.time())}_{file.filename}")
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
-            product.image_url = f'/static/uploads/{filename}'
+        uploaded_url = upload_image(file)
+        if uploaded_url:
+            product.image_url = uploaded_url
         else:
             new_url = request.form.get('image_url', '').strip()
             if new_url:
