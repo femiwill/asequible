@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}
-{% block meta_description %}Buy premium quality Nigerian rice online. Retail and wholesale. Fast delivery. {{ site_name }}.{% endblock %}
+{% block meta_description %}Buy premium quality Nigerian rice online. Retail and wholesale. Fast delivery across Lagos. {{ site_name }}.{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
@@ -13,8 +13,8 @@
 <section class="section-lg text-center">
     <div class="container" style="max-width:750px">
         <p class="section-eyebrow">Premium Rice</p>
-        <h1 class="mb-4">Premium Quality Rice.<br><span style="color:var(--gray)">Delivered to your door.</span></h1>
-        <p style="font-size:1.15rem;max-width:520px;margin:0 auto 2rem">{{ site_tagline }}. Serving retail and wholesale customers across Nigeria.</p>
+        <h1 class="mb-4">Premium Quality Rice.<br><span style="color:var(--gray)">Delivered across Lagos.</span></h1>
+        <p style="font-size:1.15rem;max-width:520px;margin:0 auto 2rem">{{ site_tagline }}. Serving retail and wholesale customers across Lagos.</p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
             <a href="/shop" class="btn btn-primary-apple btn-lg">Shop Now</a>
             <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ 'Hello! I would like to place an order.'|urlencode }}" target="_blank" class="btn btn-outline-apple btn-lg">
@@ -40,7 +40,7 @@
             </div>
             <div class="col-4">
                 <i class="bi bi-truck" style="font-size:1.5rem;color:var(--accent)"></i>
-                <div class="mt-2" style="font-size:0.85rem;font-weight:600">Nationwide Delivery</div>
+                <div class="mt-2" style="font-size:0.85rem;font-weight:600">Lagos Delivery</div>
                 <div style="font-size:0.75rem;color:var(--gray-light)">All 36 states + FCT</div>
             </div>
         </div>
@@ -146,7 +146,7 @@
                     <i class="bi bi-truck" style="font-size:1.3rem;color:var(--accent)"></i>
                 </div>
                 <h5 style="font-size:1.1rem;margin-bottom:0.5rem">Get Delivered</h5>
-                <p style="font-size:0.9rem">We deliver to your doorstep anywhere in Nigeria.</p>
+                <p style="font-size:0.9rem">We deliver to your doorstep anywhere in Lagos.</p>
             </div>
         </div>
     </div>
