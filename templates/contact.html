@@ -1,81 +1,46 @@
 {% extends 'base.html' %}
-{% block title %}Contact Us — {{ site_name }}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .contact-card {
-        border: 1px solid var(--border-warm) !important;
-    }
-    .contact-card:hover {
-        border-color: var(--gold-light) !important;
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-md);
-    }
-</style>
-{% endblock %}
+{% block title %}Contact — {{ site_name }}{% endblock %}
 
 {% block content %}
-<section class="py-5" style="background:var(--warm-white)">
+<section class="section-lg">
     <div class="container" style="max-width:800px">
         <div class="text-center mb-5">
-            <span class="section-label">Get In Touch</span>
-            <h2 class="fw-bold gold-underline">Contact Us</h2>
-            <p class="mt-3">We'd love to hear from you. Reach out via any of the channels below.</p>
+            <p class="section-eyebrow">Get in Touch</p>
+            <h1>Contact us.</h1>
+            <p style="font-size:1.05rem" class="mt-2">We'd love to hear from you.</p>
         </div>
 
         <div class="row g-4 reveal-stagger reveal">
             <div class="col-md-6">
-                <div class="card border-0 card-elevated h-100 text-center contact-card">
-                    <div class="card-body p-4">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;background:rgba(37,211,102,0.1)">
-                            <i class="bi bi-whatsapp fs-3" style="color:#25D366"></i>
-                        </div>
-                        <h5 class="fw-bold">WhatsApp</h5>
-                        <p class="small">Chat with us directly on WhatsApp for quick responses and easy ordering.</p>
-                        <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="btn btn-success btn-sm">
-                            <i class="bi bi-whatsapp me-2"></i>Chat Now
-                        </a>
-                    </div>
+                <div class="card-clean p-4 text-center h-100">
+                    <i class="bi bi-whatsapp" style="font-size:1.8rem;color:#25D366;display:block;margin-bottom:0.8rem"></i>
+                    <h5 style="font-size:1rem;margin-bottom:0.4rem">WhatsApp</h5>
+                    <p style="font-size:0.85rem;margin-bottom:1rem">Chat directly for quick responses and easy ordering.</p>
+                    <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="btn btn-dark-apple btn-sm"><i class="bi bi-whatsapp me-1"></i>Chat Now</a>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 card-elevated h-100 text-center contact-card">
-                    <div class="card-body p-4">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;background:var(--gold-glow)">
-                            <i class="bi bi-telephone fs-3" style="color:var(--gold-dark)"></i>
-                        </div>
-                        <h5 class="fw-bold">Phone</h5>
-                        <p class="small">Call us during business hours for enquiries and order support.</p>
-                        <a href="tel:{{ phone }}" class="btn btn-brand btn-sm">
-                            <i class="bi bi-telephone me-2"></i>{{ phone }}
-                        </a>
-                    </div>
+                <div class="card-clean p-4 text-center h-100">
+                    <i class="bi bi-telephone" style="font-size:1.8rem;color:var(--accent);display:block;margin-bottom:0.8rem"></i>
+                    <h5 style="font-size:1rem;margin-bottom:0.4rem">Phone</h5>
+                    <p style="font-size:0.85rem;margin-bottom:1rem">Call us during business hours for enquiries.</p>
+                    <a href="tel:{{ phone }}" class="btn btn-outline-apple btn-sm"><i class="bi bi-telephone me-1"></i>{{ phone }}</a>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 card-elevated h-100 text-center contact-card">
-                    <div class="card-body p-4">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;background:var(--gold-glow)">
-                            <i class="bi bi-envelope fs-3" style="color:var(--gold-dark)"></i>
-                        </div>
-                        <h5 class="fw-bold">Email</h5>
-                        <p class="small">Send us an email for business enquiries and partnership opportunities.</p>
-                        <a href="mailto:{{ site_email }}" class="btn btn-gold btn-sm">
-                            <i class="bi bi-envelope me-2"></i>{{ site_email }}
-                        </a>
-                    </div>
+                <div class="card-clean p-4 text-center h-100">
+                    <i class="bi bi-envelope" style="font-size:1.8rem;color:var(--accent);display:block;margin-bottom:0.8rem"></i>
+                    <h5 style="font-size:1rem;margin-bottom:0.4rem">Email</h5>
+                    <p style="font-size:0.85rem;margin-bottom:1rem">For business enquiries and partnerships.</p>
+                    <a href="mailto:{{ site_email }}" class="btn btn-outline-apple btn-sm"><i class="bi bi-envelope me-1"></i>{{ site_email }}</a>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card border-0 card-elevated h-100 text-center contact-card">
-                    <div class="card-body p-4">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:60px;height:60px;background:var(--gold-glow)">
-                            <i class="bi bi-geo-alt fs-3" style="color:var(--gold-dark)"></i>
-                        </div>
-                        <h5 class="fw-bold">Visit Us</h5>
-                        <p class="small">Come to our office/warehouse for direct purchases and business meetings.</p>
-                        <p class="fw-semibold" style="color:var(--text-dark)">{{ site_name }}<br>Lagos, Nigeria</p>
-                    </div>
+                <div class="card-clean p-4 text-center h-100">
+                    <i class="bi bi-geo-alt" style="font-size:1.8rem;color:var(--accent);display:block;margin-bottom:0.8rem"></i>
+                    <h5 style="font-size:1rem;margin-bottom:0.4rem">Visit Us</h5>
+                    <p style="font-size:0.85rem;margin-bottom:1rem">Direct purchases and business meetings.</p>
+                    <span style="font-weight:600;font-size:0.9rem">{{ site_name }}, Lagos, Nigeria</span>
                 </div>
             </div>
         </div>

@@ -3,199 +3,98 @@
 
 {% block extra_css %}
 <style>
-    .checkout-progress {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 2rem;
-    }
-    .checkout-step {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #bbb;
-    }
-    .checkout-step.done { color: #38a169; }
-    .checkout-step.active { color: var(--brown); }
-    .checkout-step .step-dot {
-        width: 30px; height: 30px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.78rem; font-weight: 700;
-        background: var(--cream-dark); color: #bbb;
-    }
-    .checkout-step.done .step-dot { background: #38a169; color: #fff; }
-    .checkout-step.active .step-dot { background: var(--brown); color: #fff; }
-    .checkout-connector {
-        width: 40px; height: 1.5px;
-        background: var(--cream-dark);
-        align-self: center;
-        margin: 0 0.5rem;
-    }
-    .checkout-connector.done { background: #38a169; }
+    .step-indicator { display: flex; justify-content: center; gap: 0; margin-bottom: 2.5rem; }
+    .step-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 500; color: #d2d2d7; }
+    .step-item.done { color: var(--green); }
+    .step-item.active { color: var(--black); }
+    .step-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; background: #eee; color: #bbb; }
+    .step-item.done .step-dot { background: var(--green); color: #fff; }
+    .step-item.active .step-dot { background: var(--black); color: #fff; }
+    .step-line { width: 32px; height: 1px; background: #eee; align-self: center; margin: 0 0.4rem; }
+    .step-line.done { background: var(--green); }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="py-4 breadcrumb-section">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0 small">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
-                <li class="breadcrumb-item active">Checkout</li>
-            </ol>
-        </nav>
-    </div>
-</section>
-
-<section class="py-5" style="background:var(--warm-white)">
-    <div class="container">
-        <div class="checkout-progress">
-            <div class="checkout-step done">
-                <span class="step-dot"><i class="bi bi-check-lg"></i></span>
-                <span class="d-none d-sm-inline">Cart</span>
-            </div>
-            <div class="checkout-connector done"></div>
-            <div class="checkout-step active">
-                <span class="step-dot">2</span>
-                <span class="d-none d-sm-inline">Checkout</span>
-            </div>
-            <div class="checkout-connector"></div>
-            <div class="checkout-step">
-                <span class="step-dot">3</span>
-                <span class="d-none d-sm-inline">Confirmation</span>
-            </div>
+<section class="section-lg">
+    <div class="container" style="max-width:1000px">
+        <div class="step-indicator">
+            <div class="step-item done"><span class="step-dot"><i class="bi bi-check2"></i></span><span class="d-none d-sm-inline">Bag</span></div>
+            <div class="step-line done"></div>
+            <div class="step-item active"><span class="step-dot">2</span><span class="d-none d-sm-inline">Checkout</span></div>
+            <div class="step-line"></div>
+            <div class="step-item"><span class="step-dot">3</span><span class="d-none d-sm-inline">Confirmation</span></div>
         </div>
 
-        <h2 class="fw-bold mb-4"><i class="bi bi-lock me-2"></i>Checkout</h2>
+        <h1 style="font-size:2rem;margin-bottom:2rem">Checkout</h1>
 
         <form method="POST" id="checkoutForm">
             <div class="row g-4">
                 <div class="col-lg-7">
-                    <div class="card border-0 card-elevated mb-4">
-                        <div class="card-header pt-3">
-                            <strong><i class="bi bi-person me-2"></i>Your Information</strong>
+                    <div class="card-white p-4 mb-4">
+                        <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:1rem">Your Information
                             {% if checkout_user and checkout_user.is_registered %}
-                            <span class="badge bg-success float-end"><i class="bi bi-check-circle me-1"></i>Logged in as {{ checkout_user.name }}</span>
+                            <span class="badge bg-success-subtle text-success float-end" style="font-size:0.7rem">Logged in</span>
                             {% endif %}
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="name" class="form-control" value="{{ checkout_user.name if checkout_user else '' }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Phone Number *</label>
-                                    <input type="tel" name="phone" class="form-control" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ checkout_user.email if checkout_user else '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Customer Type</label>
-                                    <select name="customer_type" class="form-select">
-                                        <option value="retail" {{ 'selected' if not checkout_user or checkout_user.customer_type == 'retail' else '' }}>Retail</option>
-                                        <option value="wholesale" {{ 'selected' if checkout_user and checkout_user.customer_type == 'wholesale' else '' }}>Wholesale</option>
-                                    </select>
-                                </div>
-                            </div>
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Full Name *</label><input type="text" name="name" class="form-control" value="{{ checkout_user.name if checkout_user else '' }}" required></div>
+                            <div class="col-md-6"><label class="form-label">Phone *</label><input type="tel" name="phone" class="form-control" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required></div>
+                            <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ checkout_user.email if checkout_user else '' }}"></div>
+                            <div class="col-md-6"><label class="form-label">Customer Type</label><select name="customer_type" class="form-select"><option value="retail" {{ 'selected' if not checkout_user or checkout_user.customer_type == 'retail' else '' }}>Retail</option><option value="wholesale" {{ 'selected' if checkout_user and checkout_user.customer_type == 'wholesale' else '' }}>Wholesale</option></select></div>
                         </div>
                     </div>
 
-                    <div class="card border-0 card-elevated mb-4">
-                        <div class="card-header pt-3"><strong><i class="bi bi-geo-alt me-2"></i>Delivery Address</strong></div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label">Address *</label>
-                                    <textarea name="address" class="form-control" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">City</label>
-                                    <input type="text" name="city" class="form-control" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">State *</label>
-                                    <select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()">
-                                        <option value="">Select State</option>
-                                        {% for zone in delivery_zones %}
-                                        <option value="{{ zone.state }}" {{ 'selected' if checkout_user and checkout_user.state == zone.state else '' }}>{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="card-white p-4 mb-4">
+                        <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:1rem">Delivery Address</h5>
+                        <div class="row g-3">
+                            <div class="col-12"><label class="form-label">Address *</label><textarea name="address" class="form-control" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea></div>
+                            <div class="col-md-6"><label class="form-label">City</label><input type="text" name="city" class="form-control" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}"></div>
+                            <div class="col-md-6"><label class="form-label">State *</label><select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()"><option value="">Select State</option>{% for zone in delivery_zones %}<option value="{{ zone.state }}" {{ 'selected' if checkout_user and checkout_user.state == zone.state else '' }}>{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>{% endfor %}</select></div>
                         </div>
                     </div>
 
-                    <div class="card border-0 card-elevated">
-                        <div class="card-header pt-3"><strong><i class="bi bi-credit-card me-2"></i>Payment Method</strong></div>
-                        <div class="card-body">
-                            <div class="form-check mb-3 p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" value="paystack" id="payPaystack" checked>
-                                <label class="form-check-label fw-semibold" for="payPaystack">
-                                    <i class="bi bi-credit-card me-2"></i>Pay Online (Paystack)
-                                    <div class="small fw-normal" style="color:var(--text-muted)">Card, bank transfer, USSD</div>
-                                </label>
-                            </div>
-                            <div class="form-check mb-3 p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer" id="payBank">
-                                <label class="form-check-label fw-semibold" for="payBank">
-                                    <i class="bi bi-bank me-2"></i>Bank Transfer
-                                    <div class="small fw-normal" style="color:var(--text-muted)">Transfer to our bank account</div>
-                                </label>
-                            </div>
-                            <div class="form-check p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" value="cash_on_delivery" id="payCOD">
-                                <label class="form-check-label fw-semibold" for="payCOD">
-                                    <i class="bi bi-cash me-2"></i>Cash on Delivery
-                                    <div class="small fw-normal" style="color:var(--text-muted)">Pay when your order arrives</div>
-                                </label>
-                            </div>
+                    <div class="card-white p-4">
+                        <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:1rem">Payment</h5>
+                        <div class="form-check payment-option mb-3">
+                            <input class="form-check-input" type="radio" name="payment_method" value="paystack" id="payPaystack" checked>
+                            <label class="form-check-label" for="payPaystack"><span style="font-weight:600">Pay Online</span><br><span style="font-size:0.82rem;color:var(--gray)">Card, bank transfer, USSD via Paystack</span></label>
+                        </div>
+                        <div class="form-check payment-option mb-3">
+                            <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer" id="payBank">
+                            <label class="form-check-label" for="payBank"><span style="font-weight:600">Bank Transfer</span><br><span style="font-size:0.82rem;color:var(--gray)">Transfer to our bank account</span></label>
+                        </div>
+                        <div class="form-check payment-option">
+                            <input class="form-check-input" type="radio" name="payment_method" value="cash_on_delivery" id="payCOD">
+                            <label class="form-check-label" for="payCOD"><span style="font-weight:600">Cash on Delivery</span><br><span style="font-size:0.82rem;color:var(--gray)">Pay when your order arrives</span></label>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-5">
-                    <div class="card border-0 card-elevated sticky-top" style="top:80px;border-radius:var(--radius-lg)">
-                        <div class="card-header pt-3"><strong>Order Summary</strong></div>
-                        <div class="card-body">
-                            {% for item in items %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="small" style="color:var(--text-muted)">{{ item.product_name }} ({{ item.size }}) x{{ item.qty }}</span>
-                                <strong class="small price-display">{{ item.line_total|naira }}</strong>
-                            </div>
-                            {% endfor %}
-                            <hr style="border-color:var(--border-warm)">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal</span>
-                                <strong class="price-display">{{ subtotal|naira }}</strong>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>VAT (7.5%)</span>
-                                <span class="price-display">{{ tax|naira }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Delivery Fee</span>
-                                <span class="price-display" id="deliveryFeeDisplay">Select state</span>
-                            </div>
-                            <hr style="border-color:var(--border-warm)">
+                    <div class="card-clean p-4 sticky-top" style="top:80px">
+                        <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:1rem">Order Summary</h5>
+                        {% for item in items %}
+                        <div class="d-flex justify-content-between mb-2" style="font-size:0.85rem">
+                            <span style="color:var(--gray)">{{ item.product_name }} ({{ item.size }}) &times;{{ item.qty }}</span>
+                            <span class="price">{{ item.line_total|naira }}</span>
+                        </div>
+                        {% endfor %}
+                        <div style="border-top:1px solid rgba(0,0,0,0.06);margin:0.8rem 0;padding-top:0.8rem">
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.88rem"><span style="color:var(--gray)">Subtotal</span><span class="price">{{ subtotal|naira }}</span></div>
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.88rem"><span style="color:var(--gray)">VAT (7.5%)</span><span class="price">{{ tax|naira }}</span></div>
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.88rem"><span style="color:var(--gray)">Delivery</span><span class="price" id="deliveryFeeDisplay">Select state</span></div>
+                        </div>
+                        <div style="border-top:1px solid rgba(0,0,0,0.08);margin-top:0.8rem;padding-top:1rem">
                             <div class="d-flex justify-content-between mb-3">
-                                <strong class="h5 mb-0">Total</strong>
-                                <strong class="h5 mb-0 price-display" id="totalDisplay">{{ (subtotal + tax)|naira }}</strong>
-                            </div>
-
-                            <button type="submit" class="btn btn-gold btn-lg w-100" id="placeOrderBtn">
-                                <span class="btn-text"><i class="bi bi-check-circle me-2"></i>Place Order</span>
-                            </button>
-
-                            <div class="text-center mt-3">
-                                <small style="color:var(--text-muted)"><i class="bi bi-shield-lock me-1"></i>Your information is secure</small>
+                                <span style="font-weight:600;font-size:1.1rem">Total</span>
+                                <span class="price" style="font-size:1.2rem" id="totalDisplay">{{ (subtotal + tax)|naira }}</span>
                             </div>
                         </div>
+                        <button type="submit" class="btn btn-primary-apple btn-lg w-100" id="placeOrderBtn">
+                            <span class="btn-text">Place Order</span>
+                        </button>
+                        <div class="text-center mt-2" style="font-size:0.72rem;color:var(--gray-light)"><i class="bi bi-lock me-1"></i>Secure & encrypted</div>
                     </div>
                 </div>
             </div>
@@ -206,26 +105,15 @@
 
 {% block scripts %}
 <script>
-var subtotal = {{ subtotal }};
-var tax = {{ tax }};
-
+var subtotal = {{ subtotal }}, tax = {{ tax }};
 function updateDeliveryFee() {
-    var state = document.getElementById('stateSelect').value;
-    if (!state) return;
-    fetch('/api/delivery-fee?state=' + encodeURIComponent(state))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        document.getElementById('deliveryFeeDisplay').textContent = '\u20A6' + data.fee.toLocaleString('en', {minimumFractionDigits: 2});
-        var total = subtotal + tax + data.fee;
-        document.getElementById('totalDisplay').textContent = '\u20A6' + total.toLocaleString('en', {minimumFractionDigits: 2});
+    var s = document.getElementById('stateSelect').value; if (!s) return;
+    fetch('/api/delivery-fee?state=' + encodeURIComponent(s)).then(function(r) { return r.json(); }).then(function(d) {
+        document.getElementById('deliveryFeeDisplay').textContent = '\u20A6' + d.fee.toLocaleString('en', {minimumFractionDigits: 2});
+        document.getElementById('totalDisplay').textContent = '\u20A6' + (subtotal + tax + d.fee).toLocaleString('en', {minimumFractionDigits: 2});
     });
 }
-if (document.getElementById('stateSelect').value) { updateDeliveryFee(); }
-
-document.getElementById('checkoutForm').addEventListener('submit', function() {
-    var btn = document.getElementById('placeOrderBtn');
-    btn.classList.add('btn-loading');
-    btn.disabled = true;
-});
+if (document.getElementById('stateSelect').value) updateDeliveryFee();
+document.getElementById('checkoutForm').addEventListener('submit', function() { var b = document.getElementById('placeOrderBtn'); b.classList.add('btn-loading'); b.disabled = true; });
 </script>
 {% endblock %}

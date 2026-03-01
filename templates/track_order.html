@@ -1,154 +1,103 @@
 {% extends 'base.html' %}
 {% block title %}Track Order — {{ site_name }}{% endblock %}
 
-{% block extra_css %}
-<style>
-    .timeline-circle {
-        width: 42px; height: 42px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-    }
-    .timeline-circle.active { box-shadow: 0 0 0 3px var(--gold-glow); }
-</style>
-{% endblock %}
-
 {% block content %}
-<section class="py-5" style="background:var(--warm-white)">
+<section class="section-lg">
     <div class="container" style="max-width:700px">
-        <div class="text-center mb-4">
-            <span class="section-label">Order Status</span>
-            <h2 class="fw-bold gold-underline">Track Your Order</h2>
+        <div class="text-center mb-5">
+            <p class="section-eyebrow">Order Status</p>
+            <h1 style="font-size:2.2rem">Track your order.</h1>
         </div>
 
         {% if my_orders %}
-        <div class="card border-0 card-elevated mb-4 reveal">
-            <div class="card-header pt-3"><strong><i class="bi bi-bag me-2"></i>Your Recent Orders</strong></div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Order #</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for o in my_orders %}
-                            <tr>
-                                <td class="small fw-bold">{{ o.order_number }}</td>
-                                <td class="small">{{ o.created_at.strftime('%d %b %Y') }}</td>
-                                <td class="small price-display">{{ o.total|naira }}</td>
-                                <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %} badge-status">{{ o.status|capitalize }}</span></td>
-                                <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %} badge-status">{{ o.payment_status|capitalize }}</span></td>
-                                <td><a href="/order/{{ o.order_number }}" class="btn btn-sm btn-brand">View</a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+        <div class="card-white mb-4 reveal" style="overflow:hidden">
+            <div class="p-3" style="border-bottom:1px solid rgba(0,0,0,0.06)"><span style="font-weight:600;font-size:0.9rem">Your Recent Orders</span></div>
+            <div class="table-responsive">
+                <table class="table table-minimal mb-0">
+                    <thead><tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
+                    <tbody>
+                        {% for o in my_orders %}
+                        <tr>
+                            <td style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
+                            <td style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                            <td class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
+                            <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
+                            <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status|capitalize }}</span></td>
+                            <td><a href="/order/{{ o.order_number }}" class="btn-text-apple" style="font-size:0.82rem">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
         {% endif %}
 
-        <div class="card border-0 card-elevated mb-4 reveal">
-            <div class="card-body p-4">
-                <form method="POST">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Order Number</label>
-                            <input type="text" name="order_number" class="form-control" placeholder="ASQ-XXXXXX-XXXX" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" name="phone" class="form-control" placeholder="+234..." required>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-brand w-100"><i class="bi bi-search me-2"></i>Track Order</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <div class="card-white p-4 mb-4 reveal">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Order Number</label><input type="text" name="order_number" class="form-control" placeholder="ASQ-XXXXXX-XXXX" required></div>
+                    <div class="col-md-6"><label class="form-label">Phone Number</label><input type="tel" name="phone" class="form-control" placeholder="+234..." required></div>
+                    <div class="col-12"><button type="submit" class="btn btn-dark-apple w-100">Track Order</button></div>
+                </div>
+            </form>
         </div>
 
         {% if order %}
-        <div class="card border-0 card-elevated reveal">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <h5 class="fw-bold" style="color:var(--brown)">{{ order.order_number }}</h5>
-                    <small style="color:var(--text-muted)">Placed on {{ order.created_at.strftime('%d %B %Y at %H:%M') }}</small>
-                </div>
+        <div class="card-white p-4 reveal">
+            <div class="text-center mb-4">
+                <div style="font-weight:600;font-size:1.1rem;color:var(--accent)">{{ order.order_number }}</div>
+                <div style="font-size:0.82rem;color:var(--gray-light)">Placed {{ order.created_at.strftime('%d %B %Y at %H:%M') }}</div>
+            </div>
 
-                <div class="mb-4">
-                    {% set statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'] %}
-                    {% set status_icons = {'pending': 'clock', 'confirmed': 'check-circle', 'processing': 'gear', 'shipped': 'truck', 'delivered': 'house-check'} %}
-                    {% set current_idx = statuses.index(order.status) if order.status in statuses else 0 %}
-
-                    <div class="d-flex justify-content-between position-relative">
-                        <div class="position-absolute" style="top:19px;left:10%;right:10%;height:2px;background:var(--cream-dark);z-index:0">
-                            <div style="width:{{ (current_idx / 4 * 100)|int }}%;height:100%;background:var(--brown);transition:width 0.8s ease"></div>
-                        </div>
-                        {% for s in statuses %}
-                        <div class="text-center position-relative" style="z-index:1;flex:1">
-                            <div class="timeline-circle d-inline-flex align-items-center justify-content-center mb-1
-                                {% if loop.index0 <= current_idx %}bg-brand text-white{% if loop.index0 == current_idx %} active{% endif %}{% else %}text-muted{% endif %}"
-                                style="{% if loop.index0 > current_idx %}background:var(--cream-dark){% endif %}">
-                                <i class="bi bi-{{ status_icons[s] }}"></i>
-                            </div>
-                            <div class="small {% if loop.index0 <= current_idx %}fw-bold{% endif %}" style="{% if loop.index0 > current_idx %}color:var(--text-muted){% else %}color:var(--text-dark){% endif %}">{{ s|capitalize }}</div>
-                        </div>
-                        {% endfor %}
+            <div class="mb-4">
+                {% set statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered'] %}
+                {% set status_icons = {'pending': 'clock', 'confirmed': 'check-circle', 'processing': 'gear', 'shipped': 'truck', 'delivered': 'house-check'} %}
+                {% set current_idx = statuses.index(order.status) if order.status in statuses else 0 %}
+                <div class="d-flex justify-content-between position-relative">
+                    <div class="position-absolute" style="top:16px;left:10%;right:10%;height:2px;background:#eee;z-index:0">
+                        <div style="width:{{ (current_idx / 4 * 100)|int }}%;height:100%;background:var(--black);transition:width 0.8s ease"></div>
                     </div>
+                    {% for s in statuses %}
+                    <div class="text-center position-relative" style="z-index:1;flex:1">
+                        <div class="d-inline-flex align-items-center justify-content-center mb-1" style="width:34px;height:34px;border-radius:50%;{% if loop.index0 <= current_idx %}background:var(--black);color:#fff{% else %}background:#eee;color:#bbb{% endif %};font-size:0.85rem">
+                            <i class="bi bi-{{ status_icons[s] }}"></i>
+                        </div>
+                        <div style="font-size:0.68rem;{% if loop.index0 <= current_idx %}font-weight:600;color:var(--black){% else %}color:var(--gray-light){% endif %}">{{ s|capitalize }}</div>
+                    </div>
+                    {% endfor %}
                 </div>
+            </div>
 
-                {% if order.status == 'cancelled' %}
-                <div class="alert alert-danger text-center"><i class="bi bi-x-circle me-2"></i>This order has been cancelled.</div>
-                {% endif %}
+            {% if order.status == 'cancelled' %}<div class="alert alert-danger text-center" style="font-size:0.9rem"><i class="bi bi-x-circle me-1"></i>This order has been cancelled.</div>{% endif %}
 
-                <hr style="border-color:var(--border-warm)">
-
+            <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:1rem">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-2">Items</h6>
+                        <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">Items</div>
                         {% for item in order.items %}
-                        <div class="d-flex justify-content-between small mb-1">
-                            <span>{{ item.product_name }} ({{ item.variant_size }}) x{{ item.quantity }}</span>
-                            <strong class="price-display">{{ item.line_total|naira }}</strong>
-                        </div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem"><span>{{ item.product_name }} ({{ item.variant_size }}) &times;{{ item.quantity }}</span><span class="price">{{ item.line_total|naira }}</span></div>
                         {% endfor %}
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold mb-2">Summary</h6>
-                        <div class="d-flex justify-content-between small mb-1"><span>Subtotal</span><span class="price-display">{{ order.subtotal|naira }}</span></div>
-                        <div class="d-flex justify-content-between small mb-1"><span>VAT</span><span class="price-display">{{ order.tax_amount|naira }}</span></div>
-                        <div class="d-flex justify-content-between small mb-1"><span>Delivery</span><span class="price-display">{{ order.delivery_fee|naira }}</span></div>
-                        <div class="d-flex justify-content-between fw-bold"><span>Total</span><span class="price-display">{{ order.total|naira }}</span></div>
-                        <hr style="border-color:var(--border-warm)">
-                        <div class="small">
-                            <strong>Payment:</strong>
-                            <span class="badge {% if order.payment_status == 'paid' %}bg-success{% else %}bg-warning text-dark{% endif %}">{{ order.payment_status }}</span>
-                            ({{ order.payment_method|replace('_', ' ')|title if order.payment_method else 'N/A' }})
-                        </div>
+                        <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">Summary</div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem"><span style="color:var(--gray)">Subtotal</span><span class="price">{{ order.subtotal|naira }}</span></div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem"><span style="color:var(--gray)">VAT</span><span class="price">{{ order.tax_amount|naira }}</span></div>
+                        <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem"><span style="color:var(--gray)">Delivery</span><span class="price">{{ order.delivery_fee|naira }}</span></div>
+                        <div class="d-flex justify-content-between" style="font-weight:600;font-size:0.9rem"><span>Total</span><span class="price">{{ order.total|naira }}</span></div>
                     </div>
                 </div>
-
-                <hr style="border-color:var(--border-warm)">
-                <h6 class="fw-bold mb-2">Delivery To</h6>
-                <p class="mb-0 small">{{ order.delivery_name }} &mdash; {{ order.delivery_phone }}<br>{{ order.delivery_address }}, {{ order.delivery_city }} {{ order.delivery_state }}</p>
-
-                {% if order.payment_status != 'paid' and order.status != 'cancelled' %}
-                <hr style="border-color:var(--border-warm)">
-                <a href="/order/{{ order.order_number }}{% if order.payment_method == 'paystack' %}?pay=1{% endif %}" class="btn btn-gold w-100">
-                    <i class="bi bi-credit-card me-2"></i>Complete Payment
-                </a>
-                {% endif %}
             </div>
+
+            <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:1rem;margin-top:1rem">
+                <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.3rem">Delivery To</div>
+                <p class="mb-0" style="font-size:0.85rem;color:var(--gray)">{{ order.delivery_name }} &mdash; {{ order.delivery_phone }}<br>{{ order.delivery_address }}, {{ order.delivery_city }} {{ order.delivery_state }}</p>
+            </div>
+
+            {% if order.payment_status != 'paid' and order.status != 'cancelled' %}
+            <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:1rem;margin-top:1rem">
+                <a href="/order/{{ order.order_number }}{% if order.payment_method == 'paystack' %}?pay=1{% endif %}" class="btn btn-primary-apple w-100">Complete Payment</a>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
     </div>
