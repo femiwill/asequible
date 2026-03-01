@@ -12,6 +12,10 @@
     .step-item.active .step-dot { background: var(--black); color: #fff; }
     .step-line { width: 32px; height: 1px; background: #eee; align-self: center; margin: 0 0.4rem; }
     .step-line.done { background: var(--green); }
+    @media (max-width: 768px) {
+        .form-check.payment-option { padding: 1.1rem 1.1rem 1.1rem 2.8rem; }
+        .form-check.payment-option .form-check-input { width: 1.15em; height: 1.15em; }
+    }
 </style>
 {% endblock %}
 
@@ -38,9 +42,9 @@
                             {% endif %}
                         </h5>
                         <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label">Full Name *</label><input type="text" name="name" class="form-control" value="{{ checkout_user.name if checkout_user else '' }}" required></div>
-                            <div class="col-md-6"><label class="form-label">Phone *</label><input type="tel" name="phone" class="form-control" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required></div>
-                            <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ checkout_user.email if checkout_user else '' }}"></div>
+                            <div class="col-md-6"><label class="form-label">Full Name *</label><input type="text" name="name" class="form-control" autocomplete="name" value="{{ checkout_user.name if checkout_user else '' }}" required></div>
+                            <div class="col-md-6"><label class="form-label">Phone *</label><input type="tel" name="phone" class="form-control" autocomplete="tel" inputmode="tel" placeholder="+234..." value="{{ checkout_user.phone if checkout_user else '' }}" required></div>
+                            <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="email" class="form-control" autocomplete="email" inputmode="email" value="{{ checkout_user.email if checkout_user else '' }}"></div>
                             <div class="col-md-6"><label class="form-label">Customer Type</label><select name="customer_type" class="form-select"><option value="retail" {{ 'selected' if not checkout_user or checkout_user.customer_type == 'retail' else '' }}>Retail</option><option value="wholesale" {{ 'selected' if checkout_user and checkout_user.customer_type == 'wholesale' else '' }}>Wholesale</option></select></div>
                         </div>
                     </div>
@@ -48,8 +52,8 @@
                     <div class="card-white p-4 mb-4">
                         <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:1rem">Delivery Address</h5>
                         <div class="row g-3">
-                            <div class="col-12"><label class="form-label">Address *</label><textarea name="address" class="form-control" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea></div>
-                            <div class="col-md-6"><label class="form-label">City</label><input type="text" name="city" class="form-control" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}"></div>
+                            <div class="col-12"><label class="form-label">Address *</label><textarea name="address" class="form-control" autocomplete="street-address" rows="2" required>{{ checkout_user.address if checkout_user and checkout_user.address else '' }}</textarea></div>
+                            <div class="col-md-6"><label class="form-label">City</label><input type="text" name="city" class="form-control" autocomplete="address-level2" value="{{ checkout_user.city if checkout_user and checkout_user.city else '' }}"></div>
                             <div class="col-md-6"><label class="form-label">State *</label><select name="state" class="form-select" id="stateSelect" required onchange="updateDeliveryFee()"><option value="">Select State</option>{% for zone in delivery_zones %}<option value="{{ zone.state }}" {{ 'selected' if checkout_user and checkout_user.state == zone.state else '' }}>{{ zone.state }} ({{ zone.fee|naira }} — {{ zone.estimated_days }})</option>{% endfor %}</select></div>
                         </div>
                     </div>

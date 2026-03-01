@@ -91,9 +91,9 @@
                             <div style="font-weight:600;font-size:0.9rem">{{ variant.size }}</div>
                             <div class="price" style="font-size:1.2rem;margin:0.3rem 0">{{ variant.price|naira }}</div>
                             {% if variant.wholesale_price %}
-                            <div style="font-size:0.7rem;color:var(--gray-light)">Wholesale {{ variant.wholesale_price|naira }} ({{ variant.wholesale_min_qty }}+)</div>
+                            <div style="font-size:0.75rem;color:var(--gray-light)">Wholesale {{ variant.wholesale_price|naira }} ({{ variant.wholesale_min_qty }}+)</div>
                             {% endif %}
-                            <div style="font-size:0.72rem;margin-top:0.3rem" class="{% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                            <div style="font-size:0.78rem;margin-top:0.3rem" class="{% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
                                 {% if variant.stock > 20 %}In Stock{% elif variant.stock > 0 %}{{ variant.stock }} left{% else %}Out of Stock{% endif %}
                             </div>
                         </div>
@@ -104,14 +104,14 @@
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <span style="font-size:0.85rem;font-weight:600">Qty</span>
                     <div class="d-flex align-items-center" style="border:1px solid #d2d2d7;border-radius:var(--radius);overflow:hidden">
-                        <button class="btn btn-sm border-0 px-3" onclick="changeQty(-1)" style="font-size:1.1rem">−</button>
-                        <input type="number" class="form-control border-0 text-center" id="qty" value="1" min="1" max="999" style="width:50px;font-size:0.95rem;box-shadow:none">
-                        <button class="btn btn-sm border-0 px-3" onclick="changeQty(1)" style="font-size:1.1rem">+</button>
+                        <button class="btn btn-sm border-0 px-3" onclick="changeQty(-1)" style="font-size:1.1rem;min-height:44px;min-width:44px">−</button>
+                        <input type="number" inputmode="numeric" class="form-control border-0 text-center" id="qty" value="1" min="1" max="999" style="width:50px;font-size:0.95rem;box-shadow:none;min-height:44px">
+                        <button class="btn btn-sm border-0 px-3" onclick="changeQty(1)" style="font-size:1.1rem;min-height:44px;min-width:44px">+</button>
                     </div>
                 </div>
 
-                <div class="d-flex gap-3 flex-wrap">
-                    <button id="addToCartBtn" class="btn btn-primary-apple btn-lg" onclick="addSelectedToCart(this)" disabled style="min-width:200px">
+                <div class="d-flex gap-3 flex-wrap" id="addToCartWrap">
+                    <button id="addToCartBtn" class="btn btn-primary-apple btn-lg flex-grow-1" onclick="addSelectedToCart(this)" disabled>
                         <span class="btn-text">Add to Bag</span>
                     </button>
                     <a href="https://wa.me/{{ whatsapp|replace('+', '')|replace(' ', '') }}?text={{ ('Hello! I want to order ' + product.name)|urlencode }}" target="_blank" class="btn btn-outline-apple btn-lg">
@@ -122,6 +122,13 @@
         </div>
     </div>
 </section>
+
+<!-- Sticky mobile CTA -->
+<div class="mobile-sticky-cta d-none" id="stickyAddToCart">
+    <button class="btn btn-primary-apple" onclick="addSelectedToCart(this)" id="stickyAddBtn" disabled>
+        <span class="btn-text">Add to Bag</span>
+    </button>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -149,5 +156,25 @@ function addSelectedToCart(btn) {
     if (!selectedVariantId) return;
     addToCart(selectedVariantId, parseInt(document.getElementById('qty').value), btn);
 }
+
+(function() {
+    var sticky = document.getElementById('stickyAddToCart');
+    var target = document.getElementById('addToCartWrap');
+    if (sticky && target && window.innerWidth <= 768) {
+        document.body.classList.add('has-sticky-cta');
+        var obs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) { sticky.classList.add('d-none'); sticky.classList.remove('d-flex'); }
+                else { sticky.classList.remove('d-none'); sticky.classList.add('d-flex'); }
+            });
+        }, { threshold: 0 });
+        obs.observe(target);
+    }
+    var mainBtn = document.getElementById('addToCartBtn');
+    var stickyBtn = document.getElementById('stickyAddBtn');
+    if (mainBtn && stickyBtn) {
+        new MutationObserver(function() { stickyBtn.disabled = mainBtn.disabled; }).observe(mainBtn, { attributes: true, attributeFilter: ['disabled'] });
+    }
+})();
 </script>
 {% endblock %}

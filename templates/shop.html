@@ -56,13 +56,13 @@
                                 <div style="font-weight:600;font-size:0.85rem">{{ variant.size }}</div>
                                 <div class="price" style="font-size:1.05rem;margin:0.2rem 0">{{ variant.price|naira }}</div>
                                 {% if variant.wholesale_price %}
-                                <div style="font-size:0.68rem;color:var(--gray-light)">Wholesale: {{ variant.wholesale_price|naira }}<br>Min {{ variant.wholesale_min_qty }} units</div>
+                                <div style="font-size:0.75rem;color:var(--gray-light)">Wholesale: {{ variant.wholesale_price|naira }}<br>Min {{ variant.wholesale_min_qty }} units</div>
                                 {% endif %}
-                                <div style="font-size:0.72rem;margin:0.3rem 0" class="{% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
+                                <div style="font-size:0.78rem;margin:0.3rem 0" class="{% if variant.stock > 20 %}text-success{% elif variant.stock > 0 %}text-warning{% else %}text-danger{% endif %}">
                                     {% if variant.stock > 20 %}In Stock{% elif variant.stock > 0 %}{{ variant.stock }} left{% else %}Out of Stock{% endif %}
                                 </div>
                                 {% if variant.in_stock %}
-                                <button class="btn btn-primary-apple btn-sm w-100" style="font-size:0.75rem;padding:0.35rem" onclick="addToCart({{ variant.id }}, 1, this)">Add to Bag</button>
+                                <button class="btn btn-primary-apple btn-sm w-100" style="font-size:0.82rem;padding:0.5rem 0.35rem" onclick="addToCart({{ variant.id }}, 1, this)">Add to Bag</button>
                                 {% endif %}
                             </div>
                         </div>

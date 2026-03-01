@@ -12,17 +12,17 @@
         {% if orders %}
         <div class="card-white reveal" style="overflow:hidden">
             <div class="table-responsive">
-                <table class="table table-minimal mb-0">
+                <table class="table table-minimal table-mobile-cards mb-0">
                     <thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
                     <tbody>
                         {% for o in orders %}
                         <tr>
-                            <td style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
-                            <td style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
-                            <td style="font-size:0.85rem">{{ o.items|length }}</td>
-                            <td class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
-                            <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% elif o.status == 'processing' %}bg-primary{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
-                            <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status|capitalize }}</span></td>
+                            <td data-label="Order" style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
+                            <td data-label="Date" style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                            <td data-label="Items" style="font-size:0.85rem">{{ o.items|length }}</td>
+                            <td data-label="Total" class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
+                            <td data-label="Status"><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% elif o.status == 'processing' %}bg-primary{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
+                            <td data-label="Payment"><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status|capitalize }}</span></td>
                             <td><a href="/order/{{ o.order_number }}" class="btn-text-apple" style="font-size:0.82rem">View</a></td>
                         </tr>
                         {% endfor %}

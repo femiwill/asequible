@@ -8,6 +8,12 @@
         transform: scale(0);
     }
     @keyframes scaleIn { 0% { transform: scale(0); } 70% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    @media (max-width: 480px) {
+        .success-ring { width: 60px !important; height: 60px !important; }
+        .success-ring i { font-size: 1.6rem !important; }
+        .action-buttons { flex-direction: column; }
+        .action-buttons .btn { width: 100%; }
+    }
 </style>
 {% endblock %}
 
@@ -33,15 +39,15 @@
         <div class="card-white p-4 mb-4">
             <div class="row text-center mb-3 g-3">
                 <div class="col-4">
-                    <div style="font-size:0.72rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Order</div>
+                    <div style="font-size:0.78rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Order</div>
                     <div style="font-weight:600;font-size:1rem;color:var(--accent)">{{ order.order_number }}</div>
                 </div>
                 <div class="col-4">
-                    <div style="font-size:0.72rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Status</div>
+                    <div style="font-size:0.78rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Status</div>
                     <div><span class="badge bg-warning text-dark">{{ order.status|capitalize }}</span></div>
                 </div>
                 <div class="col-4">
-                    <div style="font-size:0.72rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Total</div>
+                    <div style="font-size:0.78rem;color:var(--gray-light);text-transform:uppercase;letter-spacing:0.5px">Total</div>
                     <div class="price" style="font-size:1rem">{{ order.total|naira }}</div>
                 </div>
             </div>
@@ -105,15 +111,15 @@
             <form method="POST" action="/create-account">
                 <input type="hidden" name="customer_id" value="{{ order.customer.id }}">
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="form-label">Password</label><input type="password" name="password" class="form-control" minlength="6" required placeholder="Min 6 characters"></div>
-                    <div class="col-md-6"><label class="form-label">Confirm</label><input type="password" name="confirm_password" class="form-control" minlength="6" required></div>
+                    <div class="col-md-6"><label class="form-label">Password</label><div class="password-wrap"><input type="password" name="password" class="form-control" autocomplete="new-password" minlength="6" required placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword(this)" aria-label="Toggle password"><i class="bi bi-eye"></i></button></div></div>
+                    <div class="col-md-6"><label class="form-label">Confirm</label><div class="password-wrap"><input type="password" name="confirm_password" class="form-control" autocomplete="new-password" minlength="6" required><button type="button" class="password-toggle" onclick="togglePassword(this)" aria-label="Toggle password"><i class="bi bi-eye"></i></button></div></div>
                     <div class="col-12"><button type="submit" class="btn btn-dark-apple">Create Account</button></div>
                 </div>
             </form>
         </div>
         {% endif %}
 
-        <div class="text-center d-flex gap-2 justify-content-center flex-wrap">
+        <div class="text-center d-flex gap-2 justify-content-center flex-wrap action-buttons">
             {% if current_user %}<a href="/account/orders" class="btn btn-outline-apple btn-sm">My Orders</a>{% endif %}
             <a href="/track" class="btn btn-outline-apple btn-sm">Track Order</a>
             <a href="/invoice/{{ order.order_number }}" target="_blank" class="btn btn-outline-apple btn-sm">Print Invoice</a>

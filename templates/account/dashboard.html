@@ -21,11 +21,11 @@
                         <div class="row text-center">
                             <div class="col-6">
                                 <div class="price" style="font-size:1.5rem" data-count-to="{{ customer.order_count }}">0</div>
-                                <div style="font-size:0.72rem;color:var(--gray-light)">Orders</div>
+                                <div style="font-size:0.78rem;color:var(--gray-light)">Orders</div>
                             </div>
                             <div class="col-6">
                                 <div class="price" style="font-size:1.1rem">{{ customer.total_spent|naira }}</div>
-                                <div style="font-size:0.72rem;color:var(--gray-light)">Total Spent</div>
+                                <div style="font-size:0.78rem;color:var(--gray-light)">Total Spent</div>
                             </div>
                         </div>
                     </div>
@@ -47,15 +47,15 @@
                     </div>
                     {% if recent_orders %}
                     <div class="table-responsive">
-                        <table class="table table-minimal mb-0">
+                        <table class="table table-minimal table-mobile-cards mb-0">
                             <thead><tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
                             <tbody>
                                 {% for o in recent_orders %}
                                 <tr>
-                                    <td style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
-                                    <td style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
-                                    <td class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
-                                    <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
+                                    <td data-label="Order" style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
+                                    <td data-label="Date" style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                                    <td data-label="Total" class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
+                                    <td data-label="Status"><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
                                     <td><a href="/order/{{ o.order_number }}" class="btn-text-apple" style="font-size:0.82rem">View</a></td>
                                 </tr>
                                 {% endfor %}

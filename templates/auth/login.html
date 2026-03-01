@@ -16,11 +16,14 @@
                 {% endif %}
                 <div class="mb-3">
                     <label class="form-label">Phone or Email</label>
-                    <input type="text" name="identifier" class="form-control" required placeholder="Enter your phone or email" value="{{ request.form.get('identifier', '') }}">
+                    <input type="text" name="identifier" class="form-control" autocomplete="username" required placeholder="Enter your phone or email" value="{{ request.form.get('identifier', '') }}">
                 </div>
                 <div class="mb-4">
                     <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <div class="password-wrap">
+                        <input type="password" name="password" class="form-control" autocomplete="current-password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword(this)" aria-label="Toggle password"><i class="bi bi-eye"></i></button>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-dark-apple btn-lg w-100">Sign In</button>
             </form>

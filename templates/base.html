@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}{{ site_name }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ site_tagline }} - Order premium quality rice online from {{ site_name }}{% endblock %}">
     <link rel="icon" href="/static/favicon.ico">
@@ -289,20 +289,123 @@
             flex: 1; text-align: center;
             color: var(--gray-light);
             text-decoration: none;
-            font-size: 0.65rem; font-weight: 500;
+            font-size: 0.7rem; font-weight: 500;
             display: flex; flex-direction: column;
             align-items: center; gap: 1px;
+            min-height: 48px;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
+        .mobile-bottom-nav a:active { opacity: 0.6; }
         .mobile-bottom-nav a.active { color: var(--accent); }
         .mobile-bottom-nav a:hover { color: var(--black); }
-        .mobile-bottom-nav i { font-size: 1.15rem; }
+        .mobile-bottom-nav i { font-size: 1.35rem; }
 
         @media (max-width: 768px) {
             .mobile-bottom-nav { display: flex; }
-            body { padding-bottom: 65px; }
-            .whatsapp-float { bottom: 80px; }
+            body { padding-bottom: 72px; }
+            body.has-sticky-cta { padding-bottom: 144px; }
+            .whatsapp-float { bottom: 88px; }
             .section { padding: 3rem 0; }
             .section-lg { padding: 4rem 0; }
+
+            /* Touch targets */
+            .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+            .btn-lg { min-height: 48px; }
+
+            /* Form inputs */
+            .form-control, .form-select, textarea.form-control { min-height: 44px; font-size: 1rem; }
+
+            /* Font floors */
+            .form-label { font-size: 0.82rem; }
+            .badge { font-size: 0.78rem; }
+            .section-eyebrow { font-size: 0.78rem; }
+
+            /* Table-to-card system */
+            .table-mobile-cards thead { display: none; }
+            .table-mobile-cards tbody tr {
+                display: block;
+                border: 1px solid rgba(0,0,0,0.08);
+                border-radius: var(--radius);
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.75rem;
+                background: #fff;
+            }
+            .table-mobile-cards tbody tr:hover { background: #fff; }
+            .table-mobile-cards tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.35rem 0;
+                border-bottom: 1px solid rgba(0,0,0,0.04);
+                font-size: 0.85rem;
+            }
+            .table-mobile-cards tbody td:last-child { border-bottom: none; }
+            .table-mobile-cards tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: var(--gray-light);
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                flex-shrink: 0;
+                margin-right: 1rem;
+            }
+
+            /* Sticky CTA system */
+            .mobile-sticky-cta {
+                position: fixed;
+                bottom: 72px;
+                left: 0; right: 0;
+                z-index: 998;
+                background: rgba(255,255,255,0.92);
+                backdrop-filter: saturate(180%) blur(20px);
+                -webkit-backdrop-filter: saturate(180%) blur(20px);
+                border-top: 1px solid rgba(0,0,0,0.06);
+                padding: 0.6rem 1rem;
+                padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .mobile-sticky-cta .btn { flex: 1; }
+
+            /* Toast repositioning */
+            .toast-custom {
+                top: auto;
+                bottom: 152px;
+                right: 50%;
+                transform: translateX(50%);
+            }
+            @keyframes toastIn { from { opacity: 0; transform: translateX(50%) translateY(10px); } to { opacity: 1; transform: translateX(50%) translateY(0); } }
+            .toast-custom.toast-exit { animation: toastOut 0.25s ease forwards; }
+            @keyframes toastOut { to { opacity: 0; transform: translateX(50%) translateY(10px); } }
+
+            /* Password toggle */
+            .password-wrap { position: relative; }
+            .password-wrap .form-control { padding-right: 2.8rem; }
+            .password-toggle {
+                position: absolute;
+                right: 0.6rem;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: var(--gray-light);
+                padding: 0.3rem;
+                font-size: 1.1rem;
+                cursor: pointer;
+                min-height: auto;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section { padding: 2rem 0; }
+            .section-lg { padding: 3rem 0; }
+            .section-sm { padding: 2rem 0; }
+            h1 { font-size: clamp(1.8rem, 5vw, 2.2rem); }
+            h2 { font-size: clamp(1.5rem, 4vw, 1.8rem); }
         }
 
         /* ===== ALERTS ===== */
@@ -543,6 +646,13 @@
             var path = window.location.pathname;
             document.querySelectorAll('.mobile-bottom-nav a').forEach(function(a) { var h = a.getAttribute('href'); if (path === h || (h !== '/' && path.startsWith(h))) a.classList.add('active'); });
         })();
+
+        function togglePassword(btn) {
+            var input = btn.parentElement.querySelector('input');
+            var icon = btn.querySelector('i');
+            if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+            else { input.type = 'password'; icon.className = 'bi bi-eye'; }
+        }
     </script>
 </body>
 </html>

@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}Track Order — {{ site_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    @media (max-width: 480px) {
+        .timeline-label { font-size: 0.62rem !important; }
+        .d-inline-flex[style*="width:34px"] { width: 28px !important; height: 28px !important; font-size: 0.75rem !important; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="section-lg">
     <div class="container" style="max-width:700px">
@@ -13,16 +22,16 @@
         <div class="card-white mb-4 reveal" style="overflow:hidden">
             <div class="p-3" style="border-bottom:1px solid rgba(0,0,0,0.06)"><span style="font-weight:600;font-size:0.9rem">Your Recent Orders</span></div>
             <div class="table-responsive">
-                <table class="table table-minimal mb-0">
+                <table class="table table-minimal table-mobile-cards mb-0">
                     <thead><tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th><th>Payment</th><th></th></tr></thead>
                     <tbody>
                         {% for o in my_orders %}
                         <tr>
-                            <td style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
-                            <td style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
-                            <td class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
-                            <td><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
-                            <td><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status|capitalize }}</span></td>
+                            <td data-label="Order" style="font-weight:600;font-size:0.85rem">{{ o.order_number }}</td>
+                            <td data-label="Date" style="font-size:0.85rem">{{ o.created_at.strftime('%d %b %Y') }}</td>
+                            <td data-label="Total" class="price" style="font-size:0.85rem">{{ o.total|naira }}</td>
+                            <td data-label="Status"><span class="badge {% if o.status == 'delivered' %}bg-success{% elif o.status == 'cancelled' %}bg-danger{% elif o.status == 'shipped' %}bg-info{% else %}bg-warning text-dark{% endif %}">{{ o.status|capitalize }}</span></td>
+                            <td data-label="Payment"><span class="badge {% if o.payment_status == 'paid' %}bg-success{% else %}bg-secondary{% endif %}">{{ o.payment_status|capitalize }}</span></td>
                             <td><a href="/order/{{ o.order_number }}" class="btn-text-apple" style="font-size:0.82rem">View</a></td>
                         </tr>
                         {% endfor %}
@@ -62,7 +71,7 @@
                         <div class="d-inline-flex align-items-center justify-content-center mb-1" style="width:34px;height:34px;border-radius:50%;{% if loop.index0 <= current_idx %}background:var(--black);color:#fff{% else %}background:#eee;color:#bbb{% endif %};font-size:0.85rem">
                             <i class="bi bi-{{ status_icons[s] }}"></i>
                         </div>
-                        <div style="font-size:0.68rem;{% if loop.index0 <= current_idx %}font-weight:600;color:var(--black){% else %}color:var(--gray-light){% endif %}">{{ s|capitalize }}</div>
+                        <div class="timeline-label" style="font-size:0.72rem;{% if loop.index0 <= current_idx %}font-weight:600;color:var(--black){% else %}color:var(--gray-light){% endif %}">{{ s|capitalize }}</div>
                     </div>
                     {% endfor %}
                 </div>
