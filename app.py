@@ -4,6 +4,7 @@ import hmac
 import hashlib
 import csv
 import io
+import time
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -12,6 +13,7 @@ from flask import (
     session, jsonify, abort, make_response, Response
 )
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 import requests
 
 from models import db, Product, ProductVariant, Customer, Order, OrderItem, Payment, InventoryLog, Setting, DeliveryZone
@@ -24,6 +26,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+UPLOAD_FOLDER = os.path.join(app.static_folder, 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 with app.app_context():
     db.create_all()
@@ -310,10 +321,18 @@ def admin_product_new():
     if request.method == 'POST':
         name = request.form['name']
         slug = request.form.get('slug', '').strip() or name.lower().replace(' ', '-')
+
+        image_url = request.form.get('image_url', '')
+        file = request.files.get('image')
+        if file and file.filename and allowed_file(file.filename):
+            filename = secure_filename(f"{int(time.time())}_{file.filename}")
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            image_url = f'/static/uploads/{filename}'
+
         product = Product(
             name=name, slug=slug,
             description=request.form.get('description', ''),
-            image_url=request.form.get('image_url', ''),
+            image_url=image_url,
             category=request.form.get('category', 'rice'),
             is_active='is_active' in request.form,
             is_featured='is_featured' in request.form
@@ -359,8 +378,17 @@ def admin_product_edit(id):
         product.name = request.form['name']
         product.slug = request.form.get('slug', '').strip() or product.name.lower().replace(' ', '-')
         product.description = request.form.get('description', '')
-        product.image_url = request.form.get('image_url', '')
         product.category = request.form.get('category', 'rice')
+
+        file = request.files.get('image')
+        if file and file.filename and allowed_file(file.filename):
+            filename = secure_filename(f"{int(time.time())}_{file.filename}")
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            product.image_url = f'/static/uploads/{filename}'
+        else:
+            new_url = request.form.get('image_url', '').strip()
+            if new_url:
+                product.image_url = new_url
         product.is_active = 'is_active' in request.form
         product.is_featured = 'is_featured' in request.form
 

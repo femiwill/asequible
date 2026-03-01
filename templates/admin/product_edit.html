@@ -5,7 +5,7 @@
 {% block admin_content %}
 <div class="card shadow-sm">
     <div class="card-body">
-        <form method="POST" id="productForm">
+        <form method="POST" id="productForm" enctype="multipart/form-data">
             <div class="row g-3 mb-4">
                 <div class="col-md-8">
                     <label class="form-label fw-semibold">Product Name *</label>
@@ -19,9 +19,19 @@
                     <label class="form-label fw-semibold">Category</label>
                     <input type="text" name="category" class="form-control" value="{{ product.category if product else 'rice' }}">
                 </div>
-                <div class="col-md-8">
-                    <label class="form-label fw-semibold">Image URL</label>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Product Image</label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png" id="imageUpload">
+                    <div class="mt-2" id="imagePreview">
+                        {% if product and product.image_url %}
+                        <img src="{{ product.image_url }}" alt="Current image" style="max-height:120px;border-radius:6px;">
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Or Image URL</label>
                     <input type="text" name="image_url" class="form-control" value="{{ product.image_url if product else '' }}" placeholder="/static/rice-hero.jpg">
+                    <small class="text-muted">Upload takes priority over URL</small>
                 </div>
                 <div class="col-12">
                     <label class="form-label fw-semibold">Description</label>
@@ -140,6 +150,18 @@
 </div>
 
 <script>
+document.getElementById('imageUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            preview.innerHTML = '<img src="' + ev.target.result + '" alt="Preview" style="max-height:120px;border-radius:6px;">';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
 let variantIndex = {{ product.variants|length if product and product.variants else 1 }};
 function addVariant() {
     const html = `
