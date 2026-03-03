@@ -12,6 +12,8 @@ from flask import (
     session, jsonify, abort, make_response, Response
 )
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
+from authlib.integrations.flask_client import OAuth
 import requests
 import cloudinary
 import cloudinary.uploader
@@ -21,11 +23,22 @@ from helpers import get_setting, format_naira, generate_order_number, nigerian_s
 from seed_data import seed_all
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asequible-dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///asequible.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+# Google OAuth setup
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 # Cloudinary config (set CLOUDINARY_URL env var: cloudinary://key:secret@cloud_name)
 cloudinary.config(secure=True)
@@ -46,6 +59,12 @@ def upload_image(file):
 
 with app.app_context():
     db.create_all()
+    # Migration: add google_id column if missing (idempotent)
+    try:
+        db.session.execute(db.text('ALTER TABLE customer ADD COLUMN google_id VARCHAR(100)'))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
     seed_all()
 
 
@@ -220,6 +239,84 @@ def logout():
     session.pop('customer_id', None)
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
+
+
+# ─── Google OAuth ────────────────────────────────────────────────────
+@app.route('/auth/google')
+def google_login():
+    session['google_next'] = request.args.get('next', url_for('account'))
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route('/auth/google/callback')
+def google_callback():
+    try:
+        token = google.authorize_access_token()
+    except Exception:
+        flash('Google sign-in was cancelled or failed. Please try again.', 'danger')
+        return redirect(url_for('login'))
+
+    user_info = token.get('userinfo')
+    if not user_info:
+        flash('Could not retrieve your Google account info.', 'danger')
+        return redirect(url_for('login'))
+
+    google_id = user_info['sub']
+    email = user_info.get('email', '')
+    name = user_info.get('name', email)
+
+    # Lookup priority: google_id → email (registered) → email (guest) → create new
+    customer = Customer.query.filter_by(google_id=google_id).first()
+
+    if not customer and email:
+        customer = Customer.query.filter_by(email=email, is_registered=True).first()
+        if customer:
+            customer.google_id = google_id
+        else:
+            customer = Customer.query.filter_by(email=email).first()
+            if customer:
+                customer.google_id = google_id
+                customer.is_registered = True
+                if not customer.name or customer.name == email:
+                    customer.name = name
+
+    if not customer:
+        customer = Customer(name=name, email=email, google_id=google_id, is_registered=True)
+        db.session.add(customer)
+
+    if not customer.is_registered:
+        customer.is_registered = True
+    if not customer.name:
+        customer.name = name
+
+    db.session.commit()
+    session['customer_id'] = customer.id
+    flash(f'Welcome, {customer.name}!', 'success')
+    next_page = session.pop('google_next', url_for('account'))
+    return redirect(next_page)
+
+
+@app.route('/account/update-phone', methods=['POST'])
+@login_required
+def update_phone():
+    phone = request.form.get('phone', '').strip()
+    if not phone:
+        flash('Please enter a valid phone number.', 'danger')
+        return redirect(url_for('account'))
+
+    customer = Customer.query.get(session['customer_id'])
+    existing = Customer.query.filter(
+        Customer.phone == phone, Customer.is_registered == True, Customer.id != customer.id
+    ).first()
+    if existing:
+        flash('This phone number is already in use by another account.', 'warning')
+        return redirect(url_for('account'))
+
+    customer.phone = phone
+    db.session.commit()
+    flash('Phone number updated!', 'success')
+    return redirect(url_for('account'))
 
 
 @app.route('/account')

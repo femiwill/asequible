@@ -58,13 +58,14 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200))
-    phone = db.Column(db.String(20), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
     customer_type = db.Column(db.String(20), default='retail')  # retail or wholesale
     address = db.Column(db.Text)
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     notes = db.Column(db.Text)
     password_hash = db.Column(db.String(256))
+    google_id = db.Column(db.String(100), unique=True)
     is_registered = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
