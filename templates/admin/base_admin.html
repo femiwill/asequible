@@ -44,9 +44,11 @@
                 <i class="bi bi-speedometer2"></i>Dashboard
             </a>
             <div class="nav-section">Store</div>
+            {% if admin_role == 'admin' %}
             <a class="nav-link {% if 'product' in request.endpoint|default('') %}active{% endif %}" href="/admin/products">
                 <i class="bi bi-box-seam"></i>Products
             </a>
+            {% endif %}
             <a class="nav-link {% if 'order' in request.endpoint|default('') %}active{% endif %}" href="/admin/orders">
                 <i class="bi bi-receipt"></i>Orders
             </a>
@@ -67,10 +69,12 @@
             <a class="nav-link {% if 'report_tax' in request.endpoint|default('') %}active{% endif %}" href="/admin/reports/tax">
                 <i class="bi bi-calculator"></i>Tax Report
             </a>
+            {% if admin_role == 'admin' %}
             <div class="nav-section">System</div>
             <a class="nav-link {% if 'settings' in request.endpoint|default('') %}active{% endif %}" href="/admin/settings">
                 <i class="bi bi-gear"></i>Settings
             </a>
+            {% endif %}
             <hr class="border-secondary mx-3">
             <a class="nav-link" href="/"><i class="bi bi-globe"></i>View Site</a>
             <a class="nav-link text-danger" href="/admin/logout"><i class="bi bi-box-arrow-left"></i>Logout</a>
@@ -86,7 +90,10 @@
                 </button>
                 <strong>{% block page_title %}Dashboard{% endblock %}</strong>
             </div>
-            <div class="small text-muted">{{ site_name }}</div>
+            <div class="small text-muted">
+                {% if admin_role == 'staff' %}<span class="badge bg-info me-2">Staff</span>{% endif %}
+                {{ site_name }}
+            </div>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}

@@ -27,7 +27,15 @@
                 {% endwith %}
                 <form method="POST" class="mt-4">
                     <div class="mb-3">
-                        <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter admin password" required autofocus>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="role" id="role_admin" value="admin" checked>
+                            <label class="btn btn-outline-secondary" for="role_admin"><i class="bi bi-shield-lock me-1"></i>Admin</label>
+                            <input type="radio" class="btn-check" name="role" id="role_staff" value="staff">
+                            <label class="btn btn-outline-secondary" for="role_staff"><i class="bi bi-person-badge me-1"></i>Staff</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" name="password" class="form-control form-control-lg" placeholder="Enter password" required autofocus>
                     </div>
                     <button type="submit" class="btn btn-lg w-100" style="background:#1D3557;color:#fff;">
                         <i class="bi bi-box-arrow-in-right me-2"></i>Login

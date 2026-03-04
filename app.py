@@ -95,6 +95,7 @@ def inject_globals():
         'nigerian_states': nigerian_states_list(),
         'current_year': datetime.utcnow().year,
         'current_user': current_user,
+        'admin_role': session.get('admin_role', 'admin'),
     }
 
 
@@ -108,15 +109,36 @@ def admin_required(f):
     return decorated
 
 
+def admin_only(f):
+    """Restrict route to admin role only (staff cannot access)."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if session.get('admin_role') != 'admin':
+            flash('Access restricted to admin only.', 'danger')
+            return redirect(url_for('admin_dashboard'))
+        return f(*args, **kwargs)
+    return decorated
+
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
         password = request.form.get('password', '')
-        admin_pw = get_setting('admin_password', 'asequible-admin-2024')
-        if password == admin_pw:
-            session['admin_logged_in'] = True
-            flash('Welcome to the admin panel!', 'success')
-            return redirect(url_for('admin_dashboard'))
+        role = request.form.get('role', 'admin')
+        if role == 'staff':
+            staff_pw = get_setting('staff_password', 'asequible-staff-2024')
+            if password == staff_pw:
+                session['admin_logged_in'] = True
+                session['admin_role'] = 'staff'
+                flash('Welcome! You are logged in as staff.', 'success')
+                return redirect(url_for('admin_dashboard'))
+        else:
+            admin_pw = get_setting('admin_password', 'asequible-admin-2024')
+            if password == admin_pw:
+                session['admin_logged_in'] = True
+                session['admin_role'] = 'admin'
+                flash('Welcome to the admin panel!', 'success')
+                return redirect(url_for('admin_dashboard'))
         flash('Invalid password.', 'danger')
     return render_template('admin/login.html')
 
@@ -124,6 +146,7 @@ def admin_login():
 @app.route('/admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
+    session.pop('admin_role', None)
     flash('Logged out.', 'info')
     return redirect(url_for('admin_login'))
 
@@ -442,6 +465,7 @@ def admin_products():
 
 @app.route('/admin/products/new', methods=['GET', 'POST'])
 @admin_required
+@admin_only
 def admin_product_new():
     if request.method == 'POST':
         name = request.form['name']
@@ -496,6 +520,7 @@ def admin_product_new():
 
 @app.route('/admin/products/<int:id>/edit', methods=['GET', 'POST'])
 @admin_required
+@admin_only
 def admin_product_edit(id):
     product = Product.query.get_or_404(id)
     if request.method == 'POST':
@@ -563,6 +588,7 @@ def admin_product_edit(id):
 
 @app.route('/admin/products/<int:id>/delete', methods=['POST'])
 @admin_required
+@admin_only
 def admin_product_delete(id):
     product = Product.query.get_or_404(id)
     db.session.delete(product)
@@ -604,6 +630,7 @@ def admin_order_update_status(id):
 
 @app.route('/admin/orders/<int:id>/confirm-payment', methods=['POST'])
 @admin_required
+@admin_only
 def admin_confirm_payment(id):
     order = Order.query.get_or_404(id)
     order.payment_status = 'paid'
@@ -647,6 +674,7 @@ def admin_inventory():
 
 @app.route('/admin/inventory/<int:variant_id>/restock', methods=['POST'])
 @admin_required
+@admin_only
 def admin_restock(variant_id):
     variant = ProductVariant.query.get_or_404(variant_id)
     qty = int(request.form.get('quantity', 0))
@@ -751,6 +779,7 @@ def admin_report_tax():
 
 @app.route('/admin/reports/tax/export')
 @admin_required
+@admin_only
 def admin_tax_export():
     year = request.args.get('year', str(datetime.utcnow().year))
     orders = Order.query.filter(
@@ -774,6 +803,7 @@ def admin_tax_export():
 # ─── Admin Settings ─────────────────────────────────────────────────
 @app.route('/admin/settings', methods=['GET', 'POST'])
 @admin_required
+@admin_only
 def admin_settings():
     if request.method == 'POST':
         for key in request.form:
@@ -790,11 +820,13 @@ def admin_settings():
 
     settings = Setting.query.order_by(Setting.key).all()
     delivery_zones = DeliveryZone.query.order_by(DeliveryZone.state).all()
-    return render_template('admin/settings.html', settings=settings, delivery_zones=delivery_zones)
+    staff_password = get_setting('staff_password', 'asequible-staff-2024')
+    return render_template('admin/settings.html', settings=settings, delivery_zones=delivery_zones, staff_password=staff_password)
 
 
 @app.route('/admin/settings/delivery-zones', methods=['POST'])
 @admin_required
+@admin_only
 def admin_update_delivery_zones():
     for zone in DeliveryZone.query.all():
         fee_key = f'fee_{zone.id}'

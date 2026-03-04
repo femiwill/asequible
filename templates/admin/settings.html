@@ -24,6 +24,13 @@
                     {% endif %}
                 </div>
                 {% endfor %}
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">
+                        Staff Password
+                        <br><small class="text-muted fw-normal">Password for sales assistant (read-only) access</small>
+                    </label>
+                    <input type="password" name="setting_staff_password" class="form-control form-control-sm" value="{{ staff_password }}">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary mt-4"><i class="bi bi-check-lg me-1"></i>Save Settings</button>
         </form>
