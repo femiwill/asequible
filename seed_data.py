@@ -1,3 +1,5 @@
+from werkzeug.security import generate_password_hash
+
 from models import db, Product, ProductVariant, Setting, DeliveryZone
 from helpers import nigerian_states_list
 
@@ -18,7 +20,8 @@ def seed_settings():
         'bank_name': ('First Bank of Nigeria', 'Bank name for transfers'),
         'bank_account_number': ('0000000000', 'Bank account number'),
         'bank_account_name': ('Asequible Services Limited', 'Bank account name'),
-        'admin_password': ('asequible-admin-2024', 'Admin panel password'),
+        'admin_password': (generate_password_hash('asequible-admin-2024'), 'Admin panel password'),
+        'staff_password': (generate_password_hash('asequible-staff-2024'), 'Staff panel password'),
         'whatsapp_order_message': ('Hello! I would like to place an order.', 'Default WhatsApp order message'),
         'about_text': ('Asequible Services Limited is a leading rice distributor in Nigeria, committed to delivering premium quality rice at competitive prices to both retail and wholesale customers.', 'About us text'),
         'delivery_note': ('Delivery within Lagos: 1-2 business days. Other states: 3-5 business days.', 'Delivery information'),

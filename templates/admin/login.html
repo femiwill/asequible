@@ -26,6 +26,7 @@
                 {% endif %}
                 {% endwith %}
                 <form method="POST" class="mt-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="role" id="role_admin" value="admin" checked>

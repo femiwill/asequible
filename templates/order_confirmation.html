@@ -109,6 +109,7 @@
             <h5 style="font-size:0.95rem;font-weight:600;margin-bottom:0.5rem">Create an account</h5>
             <p style="font-size:0.85rem;color:var(--gray);margin-bottom:1rem">Save your details for faster checkout next time.</p>
             <form method="POST" action="/create-account">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="customer_id" value="{{ order.customer.id }}">
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label">Password</label><div class="password-wrap"><input type="password" name="password" class="form-control" autocomplete="new-password" minlength="6" required placeholder="Min 6 characters"><button type="button" class="password-toggle" onclick="togglePassword(this)" aria-label="Toggle password"><i class="bi bi-eye"></i></button></div></div>

@@ -94,6 +94,7 @@
                     </span>
                 </div>
                 <form method="POST" action="/admin/orders/{{ order.id }}/update-status">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <select name="status" class="form-select form-select-sm mb-2">
                         {% for s in ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'] %}
                         <option value="{{ s }}" {{ 'selected' if order.status == s }}>{{ s|capitalize }}</option>
@@ -124,6 +125,7 @@
             <div class="card-header bg-warning bg-opacity-10"><strong>Confirm Payment</strong></div>
             <div class="card-body">
                 <form method="POST" action="/admin/orders/{{ order.id }}/confirm-payment">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-2">
                         <input type="text" name="reference" class="form-control form-control-sm" placeholder="Payment reference">
                     </div>

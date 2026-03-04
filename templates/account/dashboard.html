@@ -19,6 +19,7 @@
                     <div class="mb-2 p-2" style="background:#fff8e1;border-radius:8px;border:1px solid #ffe082">
                         <span style="font-size:0.78rem;color:#f57f17;font-weight:500;display:block;margin-bottom:6px"><i class="bi bi-exclamation-triangle"></i> Add your phone number</span>
                         <form method="POST" action="{{ url_for('update_phone') }}" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="tel" name="phone" class="form-control form-control-sm" placeholder="+234..." inputmode="tel" required style="font-size:0.85rem">
                             <button type="submit" class="btn btn-dark-apple btn-sm" style="white-space:nowrap">Save</button>
                         </form>
@@ -31,6 +32,7 @@
                     <div class="mb-2 p-2" style="background:#fff8e1;border-radius:8px;border:1px solid #ffe082">
                         <span style="font-size:0.78rem;color:#f57f17;font-weight:500;display:block;margin-bottom:6px"><i class="bi bi-exclamation-triangle"></i> Add your delivery address</span>
                         <form method="POST" action="{{ url_for('update_address') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="text" name="address" class="form-control form-control-sm mb-2" placeholder="Street address" required style="font-size:0.85rem">
                             <div class="d-flex gap-2 mb-2">
                                 <input type="text" name="city" class="form-control form-control-sm" placeholder="City" style="font-size:0.85rem">

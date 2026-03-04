@@ -53,6 +53,7 @@
                     <td>
                         <a href="/admin/products/{{ product.id }}/edit" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                         <form method="POST" action="/admin/products/{{ product.id }}/delete" class="d-inline" onsubmit="return confirm('Delete this product?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                         </form>
                     </td>

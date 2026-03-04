@@ -33,6 +33,7 @@
         <h1 style="font-size:2rem;margin-bottom:2rem">Checkout</h1>
 
         <form method="POST" id="checkoutForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row g-4">
                 <div class="col-lg-7">
                     <div class="card-white p-4 mb-4">

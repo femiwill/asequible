@@ -13,7 +13,11 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.security import generate_password_hash, check_password_hash
 from authlib.integrations.flask_client import OAuth
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import requests
 import cloudinary
 import cloudinary.uploader
@@ -27,8 +31,13 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asequible-dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///asequible.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 db.init_app(app)
+csrf = CSRFProtect(app)
+limiter = Limiter(get_remote_address, app=app, default_limits=[])
 
 # Google OAuth setup
 oauth = OAuth(app)
@@ -66,6 +75,17 @@ with app.app_context():
     except Exception:
         db.session.rollback()
     seed_all()
+
+
+# ─── Security Headers ──────────────────────────────────────────────
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+    return response
 
 
 # ─── Template Filters ───────────────────────────────────────────────
@@ -121,20 +141,39 @@ def admin_only(f):
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def admin_login():
     if request.method == 'POST':
         password = request.form.get('password', '')
         role = request.form.get('role', 'admin')
         if role == 'staff':
-            staff_pw = get_setting('staff_password', 'asequible-staff-2024')
-            if password == staff_pw:
+            stored_pw = get_setting('staff_password', 'asequible-staff-2024')
+            if stored_pw.startswith(('scrypt:', 'pbkdf2:')):
+                valid = check_password_hash(stored_pw, password)
+            else:
+                valid = (password == stored_pw)
+                if valid:
+                    setting = Setting.query.filter_by(key='staff_password').first()
+                    if setting:
+                        setting.value = generate_password_hash(password)
+                        db.session.commit()
+            if valid:
                 session['admin_logged_in'] = True
                 session['admin_role'] = 'staff'
                 flash('Welcome! You are logged in as staff.', 'success')
                 return redirect(url_for('admin_dashboard'))
         else:
-            admin_pw = get_setting('admin_password', 'asequible-admin-2024')
-            if password == admin_pw:
+            stored_pw = get_setting('admin_password', 'asequible-admin-2024')
+            if stored_pw.startswith(('scrypt:', 'pbkdf2:')):
+                valid = check_password_hash(stored_pw, password)
+            else:
+                valid = (password == stored_pw)
+                if valid:
+                    setting = Setting.query.filter_by(key='admin_password').first()
+                    if setting:
+                        setting.value = generate_password_hash(password)
+                        db.session.commit()
+            if valid:
                 session['admin_logged_in'] = True
                 session['admin_role'] = 'admin'
                 flash('Welcome to the admin panel!', 'success')
@@ -804,22 +843,31 @@ def admin_tax_export():
 @admin_only
 def admin_settings():
     if request.method == 'POST':
+        password_keys = ('admin_password', 'staff_password')
         for key in request.form:
             if key.startswith('setting_'):
                 setting_key = key[8:]
+                value = request.form[key]
+                # Skip empty password fields (user didn't change them)
+                if setting_key in password_keys and not value.strip():
+                    continue
+                # Hash password values before storing
+                if setting_key in password_keys:
+                    value = generate_password_hash(value)
                 setting = Setting.query.filter_by(key=setting_key).first()
                 if setting:
-                    setting.value = request.form[key]
+                    setting.value = value
                 else:
-                    db.session.add(Setting(key=setting_key, value=request.form[key]))
+                    db.session.add(Setting(key=setting_key, value=value))
         db.session.commit()
         flash('Settings saved!', 'success')
         return redirect(url_for('admin_settings'))
 
     settings = Setting.query.order_by(Setting.key).all()
+    # Filter out password fields from settings loop (rendered separately with masking)
+    settings = [s for s in settings if s.key not in ('admin_password', 'staff_password')]
     delivery_zones = DeliveryZone.query.order_by(DeliveryZone.state).all()
-    staff_password = get_setting('staff_password', 'asequible-staff-2024')
-    return render_template('admin/settings.html', settings=settings, delivery_zones=delivery_zones, staff_password=staff_password)
+    return render_template('admin/settings.html', settings=settings, delivery_zones=delivery_zones)
 
 
 @app.route('/admin/settings/delivery-zones', methods=['POST'])

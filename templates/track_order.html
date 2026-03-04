@@ -43,6 +43,7 @@
 
         <div class="card-white p-4 mb-4 reveal">
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label">Order Number</label><input type="text" name="order_number" class="form-control" placeholder="ASQ-XXXXXX-XXXX" required></div>
                     <div class="col-md-6"><label class="form-label">Phone Number</label><input type="tel" name="phone" class="form-control" placeholder="+234..." required></div>
