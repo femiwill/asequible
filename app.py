@@ -673,7 +673,6 @@ def admin_inventory():
 
 @app.route('/admin/inventory/<int:variant_id>/restock', methods=['POST'])
 @admin_required
-@admin_only
 def admin_restock(variant_id):
     variant = ProductVariant.query.get_or_404(variant_id)
     qty = int(request.form.get('quantity', 0))
