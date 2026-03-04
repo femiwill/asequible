@@ -319,6 +319,26 @@ def update_phone():
     return redirect(url_for('account'))
 
 
+@app.route('/account/update-address', methods=['POST'])
+@login_required
+def update_address():
+    address = request.form.get('address', '').strip()
+    city = request.form.get('city', '').strip()
+    state = request.form.get('state', '').strip()
+
+    if not address:
+        flash('Please enter your address.', 'danger')
+        return redirect(url_for('account'))
+
+    customer = Customer.query.get(session['customer_id'])
+    customer.address = address
+    customer.city = city
+    customer.state = state
+    db.session.commit()
+    flash('Address updated!', 'success')
+    return redirect(url_for('account'))
+
+
 @app.route('/account')
 @login_required
 def account():

@@ -25,7 +25,24 @@
                     </div>
                     {% endif %}
                     {% if customer.email %}<div class="mb-2" style="font-size:0.88rem"><span style="color:var(--gray-light);font-size:0.75rem;display:block">Email</span>{{ customer.email }}</div>{% endif %}
-                    {% if customer.address %}<div class="mb-2" style="font-size:0.88rem"><span style="color:var(--gray-light);font-size:0.75rem;display:block">Address</span>{{ customer.address }}{% if customer.city %}, {{ customer.city }}{% endif %}{% if customer.state %}, {{ customer.state }}{% endif %}</div>{% endif %}
+                    {% if customer.address %}
+                    <div class="mb-2" style="font-size:0.88rem"><span style="color:var(--gray-light);font-size:0.75rem;display:block">Address</span>{{ customer.address }}{% if customer.city %}, {{ customer.city }}{% endif %}{% if customer.state %}, {{ customer.state }}{% endif %}</div>
+                    {% else %}
+                    <div class="mb-2 p-2" style="background:#fff8e1;border-radius:8px;border:1px solid #ffe082">
+                        <span style="font-size:0.78rem;color:#f57f17;font-weight:500;display:block;margin-bottom:6px"><i class="bi bi-exclamation-triangle"></i> Add your delivery address</span>
+                        <form method="POST" action="{{ url_for('update_address') }}">
+                            <input type="text" name="address" class="form-control form-control-sm mb-2" placeholder="Street address" required style="font-size:0.85rem">
+                            <div class="d-flex gap-2 mb-2">
+                                <input type="text" name="city" class="form-control form-control-sm" placeholder="City" style="font-size:0.85rem">
+                                <select name="state" class="form-control form-control-sm" style="font-size:0.85rem">
+                                    <option value="">State</option>
+                                    {% for s in nigerian_states %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-dark-apple btn-sm w-100">Save Address</button>
+                        </form>
+                    </div>
+                    {% endif %}
                     <div class="mb-2" style="font-size:0.88rem"><span style="color:var(--gray-light);font-size:0.75rem;display:block">Type</span><span class="badge {% if customer.customer_type == 'wholesale' %}bg-info{% else %}bg-secondary{% endif %}">{{ customer.customer_type|capitalize }}</span></div>
                     <div style="border-top:1px solid rgba(0,0,0,0.06);margin-top:1rem;padding-top:1rem">
                         <div class="row text-center">
