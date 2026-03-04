@@ -27,7 +27,7 @@ from helpers import get_setting, format_naira, generate_order_number, nigerian_s
 from seed_data import seed_all
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asequible-dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///asequible.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -288,6 +288,8 @@ def login():
             session['customer_id'] = customer.id
             flash(f'Welcome back, {customer.name}!', 'success')
             next_page = request.args.get('next') or request.form.get('next') or url_for('account')
+            if not next_page.startswith('/'):
+                next_page = url_for('account')
             return redirect(next_page)
 
         flash('Invalid phone/email or password.', 'danger')
@@ -306,7 +308,10 @@ def logout():
 # ─── Google OAuth ────────────────────────────────────────────────────
 @app.route('/auth/google')
 def google_login():
-    session['google_next'] = request.args.get('next', url_for('account'))
+    google_next = request.args.get('next', url_for('account'))
+    if not google_next.startswith('/'):
+        google_next = url_for('account')
+    session['google_next'] = google_next
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -356,6 +361,8 @@ def google_callback():
     session['customer_id'] = customer.id
     flash(f'Welcome, {customer.name}!', 'success')
     next_page = session.pop('google_next', url_for('account'))
+    if not next_page.startswith('/'):
+        next_page = url_for('account')
     return redirect(next_page)
 
 
