@@ -630,7 +630,6 @@ def admin_order_update_status(id):
 
 @app.route('/admin/orders/<int:id>/confirm-payment', methods=['POST'])
 @admin_required
-@admin_only
 def admin_confirm_payment(id):
     order = Order.query.get_or_404(id)
     order.payment_status = 'paid'
