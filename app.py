@@ -27,7 +27,7 @@ from helpers import get_setting, format_naira, generate_order_number, nigerian_s
 from seed_data import seed_all
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3, x_proto=1)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asequible-dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///asequible.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -141,7 +141,7 @@ def admin_only(f):
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("5 per minute", methods=["POST"])
 def admin_login():
     if request.method == 'POST':
         password = request.form.get('password', '')
