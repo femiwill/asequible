@@ -28,7 +28,7 @@ from seed_data import seed_all
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3, x_proto=1)
-IS_PRODUCTION = os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'production'
+IS_PRODUCTION = os.environ.get('RAILWAY_PROJECT_ID') is not None
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-not-for-production')
 if IS_PRODUCTION and app.config['SECRET_KEY'] == 'dev-secret-key-not-for-production':
     raise RuntimeError('SECRET_KEY env var must be set in production')
