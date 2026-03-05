@@ -918,6 +918,7 @@ def product_detail(slug):
 
 # ─── Cart API ────────────────────────────────────────────────────────
 @app.route('/api/cart/add', methods=['POST'])
+@csrf.exempt
 def cart_add():
     data = request.get_json() or request.form
     variant_id = str(data.get('variant_id'))
@@ -949,6 +950,7 @@ def cart_add():
 
 
 @app.route('/api/cart/update', methods=['POST'])
+@csrf.exempt
 def cart_update():
     data = request.get_json() or request.form
     variant_id = str(data.get('variant_id'))
@@ -971,6 +973,7 @@ def cart_update():
 
 
 @app.route('/api/cart/remove', methods=['POST'])
+@csrf.exempt
 def cart_remove():
     data = request.get_json() or request.form
     variant_id = str(data.get('variant_id'))
@@ -1159,6 +1162,7 @@ def order_confirmation(order_number):
 
 # ─── Paystack Verification ──────────────────────────────────────────
 @app.route('/api/verify-payment', methods=['POST'])
+@csrf.exempt
 def verify_payment():
     data = request.get_json()
     reference = data.get('reference', '')
@@ -1197,6 +1201,7 @@ def verify_payment():
 
 
 @app.route('/api/webhooks/paystack', methods=['POST'])
+@csrf.exempt
 def paystack_webhook():
     secret_key = get_setting('paystack_secret_key', '')
     signature = request.headers.get('x-paystack-signature', '')
