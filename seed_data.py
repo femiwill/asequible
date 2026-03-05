@@ -10,7 +10,7 @@ def seed_settings():
         'site_tagline': ('Premium Quality Rice, Delivered to Your Door', 'Site tagline'),
         'phone': ('+234 800 000 0000', 'Business phone'),
         'whatsapp': ('+234 800 000 0000', 'WhatsApp number'),
-        'email': ('info@asequible.com', 'Business email'),
+        'email': ('asequible001@gmail.com', 'Business email'),
         'address': ('Lagos, Nigeria', 'Business address'),
         'tax_rate': ('7.5', 'VAT rate percentage'),
         'currency': ('NGN', 'Currency code'),

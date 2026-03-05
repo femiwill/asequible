@@ -110,7 +110,7 @@ def inject_globals():
         'site_tagline': get_setting('site_tagline', 'Premium Quality Rice'),
         'whatsapp': get_setting('whatsapp', '+234 800 000 0000'),
         'phone': get_setting('phone', '+234 800 000 0000'),
-        'site_email': get_setting('email', 'info@asequible.com'),
+        'site_email': get_setting('email', 'asequible001@gmail.com'),
         'cart_count': cart_count,
         'nigerian_states': nigerian_states_list(),
         'current_year': datetime.utcnow().year,
