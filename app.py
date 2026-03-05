@@ -28,10 +28,13 @@ from seed_data import seed_all
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3, x_proto=1)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'asequible-dev-secret-key-change-in-production')
+IS_PRODUCTION = os.environ.get('RAILWAY_ENVIRONMENT_NAME') == 'production'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-not-for-production')
+if IS_PRODUCTION and app.config['SECRET_KEY'] == 'dev-secret-key-not-for-production':
+    raise RuntimeError('SECRET_KEY env var must be set in production')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///asequible.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = IS_PRODUCTION
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
@@ -85,6 +88,8 @@ def set_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+    if IS_PRODUCTION:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
 
@@ -1313,4 +1318,4 @@ def server_error(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=not IS_PRODUCTION, port=5000)
